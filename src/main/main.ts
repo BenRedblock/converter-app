@@ -9,7 +9,7 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, nativeTheme } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
@@ -57,9 +57,9 @@ const installExtensions = async () => {
 };
 
 const createWindow = async () => {
-  if (isDebug) {
-    await installExtensions();
-  }
+  // if (isDebug) {
+  //   await installExtensions();
+  // }
 
   const RESOURCES_PATH = app.isPackaged
     ? path.join(process.resourcesPath, 'assets')
@@ -73,6 +73,10 @@ const createWindow = async () => {
     show: false,
     width: 1024,
     height: 728,
+    minHeight: 728,
+    minWidth: 1024,
+    autoHideMenuBar: true,
+    frame: false,
     icon: getAssetPath('icon.png'),
     webPreferences: {
       preload: app.isPackaged
@@ -135,3 +139,16 @@ app
     });
   })
   .catch(console.log);
+
+ipcMain.handle('dark-mode:toggle', () => {
+  if (nativeTheme.shouldUseDarkColors) {
+    nativeTheme.themeSource = 'light';
+  } else {
+    nativeTheme.themeSource = 'dark';
+  }
+  return nativeTheme.shouldUseDarkColors;
+});
+
+ipcMain.handle('dark-mode:system', () => {
+  nativeTheme.themeSource = 'system';
+});

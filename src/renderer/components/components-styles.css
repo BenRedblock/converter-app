@@ -1,0 +1,13 @@
+.TitleBar {
+    flex: 1 1 auto;
+    -webkit-app-region: drag;
+}
+
+.Actions {
+    display: flex;
+    flex: 0 0 auto;
+}
+
+.Actions .Item {
+font-size: 40px;
+}
