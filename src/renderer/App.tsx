@@ -22,9 +22,6 @@ export const themeOptions= createTheme({
     secondary: {
       main: '#f50057',
     },
-    background: {
-      paper: '#000'
-    }
   },
 });
 export default function App() {
@@ -36,8 +33,10 @@ const [page, setPage] = useState<string>()
     <>
       <SelectedPageContext.Provider value={{page, updatePage}}>
       <ThemeProvider theme={themeOptions}>
-        <Navbar />
         <Router>
+          <Routes>
+            <Route path='/*' element={<Navbar />} />
+          </Routes>
           <Routes>
             <Route path="/" element={<HomePage></HomePage>} />
             <Route

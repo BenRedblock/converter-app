@@ -1,13 +1,22 @@
 .TitleBar {
-    flex: 1 1 auto;
-    -webkit-app-region: drag;
+  flex: 1 1 auto;
+  -webkit-app-region: drag;
+  /* background-color: white; */
+  min-height: 40px;
+  color: #2b2b2b;
 }
 
 .Actions {
-    display: flex;
-    flex: 0 0 auto;
+  display: flex;
+  flex: 0 0 auto;
 }
 
 .Actions .Item {
-font-size: 40px;
+  font-size: 40px;
+  -webkit-app-region: no-drag;
+
+  &:hover {
+    background-color: black;
+    cursor: pointer;
+  }
 }

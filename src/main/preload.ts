@@ -2,7 +2,9 @@
 /* eslint no-unused-vars: off */
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
-export type Channels = 'ipc-example';
+export type Channels = 'ipc-example'| "close";
+
+
 
 const electronHandler = {
   ipcRenderer: {
@@ -25,15 +27,5 @@ const electronHandler = {
 };
 
 contextBridge.exposeInMainWorld('electron', electronHandler);
-
-contextBridge.exposeInMainWorld('darkMode', {
-  toggle: () => ipcRenderer.invoke('darkmode:toggle'),
-  system: () => ipcRenderer.invoke('dark-mode:system'),
-});
-
-export type DarkMode = {
-  toggle: () => void;
-  system: () => void;
-};
 
 export type ElectronHandler = typeof electronHandler;
