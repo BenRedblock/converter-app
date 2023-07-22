@@ -48,7 +48,7 @@ export function HomePage() {
         <>
           <div className="update">
             {update?.progress ? (
-              <text>Downloading update: {update.progress}%</text>
+              <text>Downloading update: {Math.round(update.progress)}%</text>
             ) : (
               <text>New Version: v{update?.version}</text>
             )}
@@ -74,7 +74,7 @@ export function HomePage() {
           </div>
         </>
       ) : (
-        <><div>Current Version 1.0.1</div></>
+        <></>
       )}
     </Container>
   );
