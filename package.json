@@ -14,9 +14,10 @@
   "bugs": {
     "url": "https://github.com/BenRedblock/converter-app/issues"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/BenRedblock/converter-app.git"
+  "repository": "https://github.com/BenRedblock/converter-app",
+  "publish": {
+    "provider": "github",
+    "releaseType": "release"
   },
   "license": "MIT",
   "author": {
@@ -137,7 +138,7 @@
     "css-minimizer-webpack-plugin": "^5.0.0",
     "detect-port": "^1.5.1",
     "electron": "^25.3.0",
-    "electron-builder": "^24.2.1",
+    "electron-builder": "^24.4.0",
     "electron-devtools-installer": "^3.2.0",
     "electronmon": "^2.0.2",
     "eslint": "^8.42.0",
@@ -180,7 +181,7 @@
   },
   "build": {
     "productName": "Converter",
-    "appId": "org.erb.ElectronReact",
+    "appId": "com.benredblock.converter",
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
     "files": [
@@ -235,12 +236,7 @@
     },
     "extraResources": [
       "./assets/**"
-    ],
-    "publish": {
-      "provider": "github",
-      "owner": "BenRedblock",
-      "repo": "BenRedblock"
-    }
+    ]
   },
   "devEngines": {
     "node": ">=14.x",

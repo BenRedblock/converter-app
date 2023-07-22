@@ -29,7 +29,9 @@ class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
     autoUpdater.logger = log;
-    autoUpdater.checkForUpdatesAndNotify();
+    autoUpdater.autoDownload = false;
+    autoUpdater.autoInstallOnAppQuit = true;
+    autoUpdater.checkForUpdates();
   }
 }
 
@@ -126,6 +128,24 @@ const createWindow = async () => {
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
   new AppUpdater();
+/**
+ * Autoupdate Notify
+ */
+  let version: string = String(autoUpdater.currentVersion)
+  autoUpdater.on('update-available', (info) => {
+    console.log("update-availible")
+    mainWindow?.webContents.send('update', "available", info.version, autoUpdater.currentVersion)
+    version = info.version
+  });
+
+  autoUpdater.on("download-progress",(info)=> {
+    mainWindow?.webContents.send("update", "progress", version, info.percent)
+  })
+
+  autoUpdater.on('update-downloaded', (info) => {
+    console.log('download ready' + info.version);
+    mainWindow?.webContents.send('update', "ready", info.version)
+  });
 };
 
 const dataPath = app.getPath('userData');
@@ -134,9 +154,19 @@ const dataPath = app.getPath('userData');
  * Add event listeners...
  */
 
+ipcMain.on('update', (event, arg) => {
+  if (arg === 'download') {
+    autoUpdater.downloadUpdate();
+    event.reply('update',("downloading"))
+  }
+  if(arg === "ready") {
+    autoUpdater.autoRunAppAfterInstall = true
+    autoUpdater.quitAndInstall()
+  }
+});
+
 ipcMain.on('syncData', (event) => {
   let res = fs.existsSync(path.join(dataPath, 'data.json'));
-  console.log(res);
   if (res) {
     let dt = fs.readFileSync(path.join(dataPath, 'data.json'));
     let data = JSON.parse(dt.toString());

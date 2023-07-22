@@ -56,9 +56,6 @@ export default function Navbar() {
         {[
           'Video To Image Converter',
           'Xbox Clip sorting',
-          'Image Converter',
-          'Video Converter',
-          'Video to GIF',
         ].map((text, index) => (
           <ListItem
             key={text}

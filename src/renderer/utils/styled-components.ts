@@ -40,8 +40,12 @@ export const ButtomGrid = styled.div`
 `;
 
 export const Page = styled.div`
-  max-width: 80%;
-  width: 80%;
+  padding: 50px
+`;
+
+export const Container = styled.div`
+  width: 70vw;
+  margin: 0 auto;
 `;
 
 export const PrimaryButton = styled.button`

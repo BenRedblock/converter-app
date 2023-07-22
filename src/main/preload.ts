@@ -7,7 +7,8 @@ export type Channels =
   | 'ipc-example'
   | 'close'
   | 'xbox-clip-sorting'
-  | 'syncData';
+  | 'syncData'
+  | 'update';
 
 const saveData = (data: ConfigData): Promise<boolean> => {
   console.log('saving Data' + data);
