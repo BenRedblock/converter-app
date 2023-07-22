@@ -9,11 +9,21 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain, nativeTheme } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  shell,
+  ipcMain,
+  nativeTheme,
+  dialog,
+} from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import sortVideosByFirstWord from './functions/sortVideosByFirstWord';
+import fs from 'fs';
+import { ConfigData } from 'renderer/utils/types';
 
 class AppUpdater {
   constructor() {
@@ -24,7 +34,6 @@ class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
-
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -95,12 +104,13 @@ const createWindow = async () => {
     }
   });
 
-
-
   ipcMain.on('close', (event, arg) => {
-    if (arg === "minimizeApp" && !mainWindow?.isMinimized()) mainWindow?.minimize()
-    if(arg === "maximizeApp"){
-      mainWindow?.isMaximized() ? mainWindow?.restore() : mainWindow?.maximize()
+    if (arg === 'minimizeApp' && !mainWindow?.isMinimized())
+      mainWindow?.minimize();
+    if (arg === 'maximizeApp') {
+      mainWindow?.isMaximized()
+        ? mainWindow?.restore()
+        : mainWindow?.maximize();
     }
   });
 
@@ -118,12 +128,42 @@ const createWindow = async () => {
   new AppUpdater();
 };
 
+const dataPath = app.getPath('userData');
+
 /**
  * Add event listeners...
  */
+
+ipcMain.on('syncData', (event) => {
+  let res = fs.existsSync(path.join(dataPath, 'data.json'));
+  console.log(res);
+  if (res) {
+    let dt = fs.readFileSync(path.join(dataPath, 'data.json'));
+    let data = JSON.parse(dt.toString());
+    event.reply('syncData', data);
+  }
+});
+
+ipcMain.handle('saveData', (event, data: ConfigData) => {
+  console.log(data);
+  let sData = JSON.stringify(data);
+  fs.writeFileSync(path.join(dataPath, 'data.json'), sData);
+  console.log('Data Saved in' + path.join(dataPath, 'data.json'));
+  return true;
+});
+
+ipcMain.handle('open-dialog', async (event, options) => {
+  const result = await dialog.showOpenDialog(options);
+  return result;
+});
+
 ipcMain.on('close', (event, arg) => {
-  if(arg === "closeApp") app.quit()
-})
+  if (arg === 'closeApp') app.quit();
+});
+
+ipcMain.handle('xbox-clip-sorting', async (event, arg: string) => {
+  return sortVideosByFirstWord(arg);
+});
 
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;

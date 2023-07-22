@@ -27,7 +27,7 @@ export default function Navbar() {
 
   const drawerWidth = 240;
 
-  const urls = ['/tools/vid2img'];
+  const urls = ['/tools/vid2img', "/tools/xbox-sorting"];
 
   const drawerHTML = (
     <div>
@@ -55,6 +55,7 @@ export default function Navbar() {
         <Divider />
         {[
           'Video To Image Converter',
+          'Xbox Clip sorting',
           'Image Converter',
           'Video Converter',
           'Video to GIF',

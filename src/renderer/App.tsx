@@ -11,7 +11,10 @@ import Navbar from './components/Navbar';
 import { dark } from '@mui/material/styles/createPalette';
 import { ThemeOptions, ThemeProvider, createTheme } from '@mui/material/styles';
 import { SelectedPageContext } from './utils/context/SelectedPageContext';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import XboxGameBarClipsSorting from './routes/tools/XboxGameBarClipsSorting';
+import { ConfigData } from './utils/types';
+import { ConfigDataContext } from './utils/context/ConfigDataContext';
 
 export const themeOptions= createTheme({
   palette: {
@@ -26,11 +29,20 @@ export const themeOptions= createTheme({
 });
 export default function App() {
 const [page, setPage] = useState<string>()
+const [configData, setConfigData] = useState<ConfigData>()
 
   const updatePage = (string: string) => setPage(string);
 
+  const updateData = () => window.electron.syncData()
+
+    window.electron.ipcRenderer.once('syncData',(data)=> {
+      if (data && typeof data === 'object')
+      setConfigData(data)
+    })
+
   return (
     <>
+    <ConfigDataContext.Provider value={{configData, updateData}}>
       <SelectedPageContext.Provider value={{page, updatePage}}>
       <ThemeProvider theme={themeOptions}>
         <Router>
@@ -43,10 +55,12 @@ const [page, setPage] = useState<string>()
               path="/tools/vid2img"
               element={<Vid2ImgPage></Vid2ImgPage>}
             />
+            <Route path='/tools/xbox-sorting' element={<XboxGameBarClipsSorting />} />
           </Routes>
         </Router>
       </ThemeProvider>
       </SelectedPageContext.Provider>
+      </ConfigDataContext.Provider>
     </>
   );
 }
