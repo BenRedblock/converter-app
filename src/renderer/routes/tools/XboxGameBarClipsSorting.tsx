@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from 'react';
 import { ConfigDataContext } from 'renderer/utils/context/ConfigDataContext';
 import { SelectedPageContext } from 'renderer/utils/context/SelectedPageContext';
 import { BigButton, PrimaryButton } from 'renderer/utils/styled-components';
-import { SnachbarType } from 'renderer/utils/types';
+import { SnachbarType, ipcMainresponse } from 'renderer/utils/types';
 
 export default function XboxGameBarClipsSorting() {
   const { updatePage } = useContext(SelectedPageContext);
@@ -40,7 +40,7 @@ export default function XboxGameBarClipsSorting() {
   const ClickSort = () => {
     window.electron.ipcRenderer
       .invoke('xbox-clip-sorting', configData?.xboxClipsPath)
-      .then((result: { completed: boolean; message: string }) => {
+      .then((result: ipcMainresponse) => {
         if (result.completed)
           setSnackbar({ open: true, message: result.message, type: 'success' });
         else setSnackbar({ open: true, message: result.message, type: "error"})

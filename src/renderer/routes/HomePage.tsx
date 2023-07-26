@@ -1,3 +1,4 @@
+import { UpdateCheckResult } from 'electron-updater';
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SelectedPageContext } from 'renderer/utils/context/SelectedPageContext';
@@ -16,13 +17,14 @@ export function HomePage() {
   const { updatePage } = useContext(SelectedPageContext);
   useEffect(() => {
     updatePage('Home');
+
+    window.electron.ipcRenderer.invoke("update", "check").then((result:false | string) => {
+      if(result) setUpdate({ availible: true, version: result, downloaded: false, progress: undefined });
+    })
   }, []);
 
   window.electron.ipcRenderer.on('update', (arg, version, percent) => {
     console.log("update")
-    if (arg === 'available' && typeof version === 'string') {
-      setUpdate({ availible: true, version, downloaded: false, progress: undefined });
-    }
     if (arg === 'ready' && typeof version === 'string')
       setUpdate({
         version,

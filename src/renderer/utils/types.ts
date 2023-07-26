@@ -7,3 +7,8 @@ export type SnachbarType = {
   message: string,
   type: "error" | "warning" | "info" | "success",
 }
+
+export type ipcMainresponse ={
+  completed: true,
+  message: string
+}

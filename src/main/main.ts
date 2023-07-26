@@ -24,6 +24,7 @@ import { resolveHtmlPath } from './util';
 import sortVideosByFirstWord from './functions/sortVideosByFirstWord';
 import fs from 'fs';
 import { ConfigData } from 'renderer/utils/types';
+import { extractFrames } from './functions/VidtoFrames';
 
 class AppUpdater {
   constructor() {
@@ -35,6 +36,7 @@ class AppUpdater {
   }
 }
 
+let updateavailible = false
 let mainWindow: BrowserWindow | null = null;
 
 if (process.env.NODE_ENV === 'production') {
@@ -132,11 +134,21 @@ const createWindow = async () => {
  * Autoupdate Notify
  */
   let version: string = String(autoUpdater.currentVersion)
-  autoUpdater.on('update-available', (info) => {
-    console.log("update-availible")
-    mainWindow?.webContents.send('update', "available", info.version, autoUpdater.currentVersion)
-    version = info.version
-  });
+  // autoUpdater.on('update-available', (info) => {
+  //   console.log("update-availible")
+  //   updateavailible = true
+  //   // mainWindow?.webContents.send('update', "available", info.version, autoUpdater.currentVersion)
+  //   version = info.version
+  // });
+  ipcMain.handle('update', async (event, arg) => {
+    if(arg !== 'check') return;
+    const updateinfo = await autoUpdater.checkForUpdatesAndNotify()
+    if(!updateinfo) return false
+    let update = autoUpdater.currentVersion.compare(updateinfo.updateInfo.version)
+    version = updateinfo.updateInfo.version
+    if(update === -1) return updateinfo.updateInfo.version
+
+  })
 
   autoUpdater.on("download-progress",(info)=> {
     mainWindow?.webContents.send("update", "progress", version, info.percent)
@@ -164,6 +176,7 @@ ipcMain.on('update', (event, arg) => {
     autoUpdater.quitAndInstall()
   }
 });
+
 
 ipcMain.on('syncData', (event) => {
   let res = fs.existsSync(path.join(dataPath, 'data.json'));
@@ -195,6 +208,10 @@ ipcMain.handle('xbox-clip-sorting', async (event, arg: string) => {
   return sortVideosByFirstWord(arg);
 });
 
+ipcMain.handle('extractFrames',async (event, path: string) => {
+  return extractFrames(path)
+})
+
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
   console.log(msgTemplate(arg));
@@ -220,3 +237,6 @@ app
     });
   })
   .catch(console.log);
+
+
+  export {app}

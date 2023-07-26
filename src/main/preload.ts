@@ -8,7 +8,8 @@ export type Channels =
   | 'close'
   | 'xbox-clip-sorting'
   | 'syncData'
-  | 'update';
+  | 'update'
+  | 'extractFrames';
 
 const saveData = (data: ConfigData): Promise<boolean> => {
   console.log('saving Data' + data);
