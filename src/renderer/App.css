@@ -28,40 +28,30 @@ body {
   justify-items: center;
 }
 
-/* button {
-  background-color: white;
-  padding: 10px 20px;
-  border-radius: 10px;
-  border: none;
-  appearance: none;
-  font-size: 1.3rem;
-  box-shadow: 0px 8px 28px -6px rgba(24, 39, 75, 0.12),
-    0px 18px 88px -4px rgba(24, 39, 75, 0.14);
-  transition: all ease-in 0.1s;
-  cursor: pointer;
-  opacity: 0.9;
-} */
-
-
-li {
-  list-style: none;
+.background {
+  padding: 20px;
+  border-radius: 5px;
+  background-color: #2b2b2b;
 }
 
-a {
-  text-decoration: none;
-  height: fit-content;
-  width: fit-content;
-  margin: 10px;
+
+.input {
+background-color: transparent;
+border-radius: 5px;
+resize: none;
+max-height: 15px;
+padding: 10px;
+overflow-y: hidden;
+color: white;
 }
 
-a:hover {
-  opacity: 1;
-  text-decoration: none;
-}
-
-.Hello {
+.flex {
   display: flex;
-  justify-content: center;
   align-items: center;
-  margin: 20px 0;
+  justify-content: space-between;
+}
+
+.center {
+  display: grid;
+  place-items: center;
 }

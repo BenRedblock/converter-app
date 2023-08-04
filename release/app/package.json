@@ -1,6 +1,6 @@
 {
   "name": "converter-app",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "An app that provides everyday-tools",
   "license": "MIT",
   "author": {
@@ -14,5 +14,8 @@
     "postinstall": "npm run rebuild && npm run link-modules",
     "link-modules": "node -r ts-node/register ../../.erb/scripts/link-modules.ts"
   },
-  "dependencies": {}
+  "dependencies": {
+    "ffmpeg-static-electron": "^2.0.3",
+    "ffprobe-static-electron": "^2.0.2"
+  }
 }

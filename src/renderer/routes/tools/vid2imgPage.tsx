@@ -1,4 +1,4 @@
-import { Alert, Snackbar } from '@mui/material';
+import { Alert, LinearProgress, Snackbar } from '@mui/material';
 import { useContext, useEffect, useState } from 'react';
 import { SelectedPageContext } from 'renderer/utils/context/SelectedPageContext';
 import {
@@ -16,18 +16,26 @@ export default function Vid2ImgPage() {
     message: 'undefined',
     type: 'info',
   });
+  const [progress, setProgress] = useState<number | undefined>();
 
   useEffect(() => {
     updatePage('Video To Image Converter');
   }, []);
 
+  window.electron.ipcRenderer.on('extractFrames', (progress: any) => {
+    console.log(progress)
+    if (typeof progress === 'number') setProgress(progress);
+    else if (progress[0]) {
+      setSnackbar({ open: true, message: progress[1], type: 'success' });
+      setProgress(undefined);
+    } else {
+      setSnackbar({ open: true, message: progress[1], type: 'error' });
+    }
+  });
+
   const extractFrames = () => {
-    window.electron.ipcRenderer
-      .invoke('extractFrames', videopath)
-      .then((result: ipcMainresponse) => {
-        if (result.completed)
-          setSnackbar({ open: true, message: result.message, type: 'success' });
-      });
+    console.log(videopath);
+    window.electron.ipcRenderer.sendMessage('extractFrames', videopath);
   };
   const openDialog = () => {
     window.electron
@@ -38,7 +46,6 @@ export default function Vid2ImgPage() {
       .then((result) => {
         if (result.canceled) return;
         setVideoPath(result.filePaths[0]);
-        console.log(result.filePaths);
       });
   };
 
@@ -60,11 +67,14 @@ export default function Vid2ImgPage() {
           {snackbar.message}
         </Alert>
       </Snackbar>
-      <SecondaryButton onClick={openDialog}>SelectVideo</SecondaryButton><br/>
+      <h1>Extract Frames</h1>
+      <SecondaryButton onClick={openDialog}>SelectVideo</SecondaryButton>
+      <br />
       {videopath ? (
         <>
-          <text>Selected: {videopath}</text><br/>
-          <PrimaryButton onClick={extractFrames}>Extract Frames</PrimaryButton><br/>
+          Selected: {videopath}
+          <br />
+          {progress ? <div className='background'><LinearProgress variant="determinate"  value={progress} /></div> : <PrimaryButton onClick={extractFrames}>Extract Frames</PrimaryButton>}
         </>
       ) : (
         <></>

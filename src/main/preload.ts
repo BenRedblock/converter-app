@@ -9,7 +9,8 @@ export type Channels =
   | 'xbox-clip-sorting'
   | 'syncData'
   | 'update'
-  | 'extractFrames';
+  | 'extractFrames'
+  | 'video-convert'
 
 const saveData = (data: ConfigData): Promise<boolean> => {
   console.log('saving Data' + data);
@@ -48,6 +49,11 @@ const electronHandler = {
   ): Promise<Electron.OpenDialogReturnValue> => {
     return ipcRenderer.invoke('open-dialog', options);
   },
+  saveDialog: (
+    options: Electron.SaveDialogOptions
+  ): Promise<Electron.SaveDialogReturnValue> => {
+    return ipcRenderer.invoke('save-dialog', options);
+  }
 };
 
 contextBridge.exposeInMainWorld('electron', electronHandler);

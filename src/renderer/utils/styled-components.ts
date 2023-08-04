@@ -115,3 +115,43 @@ export const ErrorButton = styled.button`
     background: rgba(255, 0, 0, 0.4);
   }
 `;
+
+export const InputField = styled.input`
+  margin: 5px;
+  padding: 8px 8px;
+  box-sizing: border-box;
+  front-size: 16px;
+  color: #fff;
+  background-color: #272829;
+  border-radius: 5px;
+  border: 1px solid #3a3a3a;
+  outline: none;
+  width: 100%;
+  transition: all 0.2s;
+  :hover {
+    border: 1px solid #414141;
+    transition: all 0.2s;
+  }
+`;
+
+export const Select = styled.select`
+outline: none;
+  margin: 5px;
+  width: 100%;
+  padding: 15px;
+  background-color: #2f3031;
+  border: none;
+  border-radius: 5px;
+  border: 1px solid #3a3a3a;
+  appearance: none;
+  color: #fff;
+  & > option {
+    background-color: 2f3031;
+    padding: 20px;
+    margin: 20px;
+  }
+  :hover {
+    border: 2px solid #414141;
+    transition: all 0.2s;
+  }
+`;

@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 /* eslint global-require: off, no-console: off, promise/always-return: off */
 
 /**
@@ -9,22 +10,16 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import {
-  app,
-  BrowserWindow,
-  shell,
-  ipcMain,
-  nativeTheme,
-  dialog,
-} from 'electron';
+import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
+import { ConfigData } from 'renderer/utils/types';
+import fs from 'fs';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import sortVideosByFirstWord from './functions/sortVideosByFirstWord';
-import fs from 'fs';
-import { ConfigData } from 'renderer/utils/types';
-import { extractFrames } from './functions/VidtoFrames';
+import extractFrames  from './functions/extractFrames';
+import listeners from './listeners';
 
 class AppUpdater {
   constructor() {
@@ -36,7 +31,6 @@ class AppUpdater {
   }
 }
 
-let updateavailible = false
 let mainWindow: BrowserWindow | null = null;
 
 if (process.env.NODE_ENV === 'production') {
@@ -112,9 +106,8 @@ const createWindow = async () => {
     if (arg === 'minimizeApp' && !mainWindow?.isMinimized())
       mainWindow?.minimize();
     if (arg === 'maximizeApp') {
-      mainWindow?.isMaximized()
-        ? mainWindow?.restore()
-        : mainWindow?.maximize();
+      if (mainWindow?.isMaximized()) mainWindow?.restore();
+      else mainWindow?.maximize();
     }
   });
 
@@ -130,10 +123,10 @@ const createWindow = async () => {
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
   new AppUpdater();
-/**
- * Autoupdate Notify
- */
-  let version: string = String(autoUpdater.currentVersion)
+  /**
+   * Autoupdate Notify
+   */
+  let version: string = String(autoUpdater.currentVersion);
   // autoUpdater.on('update-available', (info) => {
   //   console.log("update-availible")
   //   updateavailible = true
@@ -141,22 +134,25 @@ const createWindow = async () => {
   //   version = info.version
   // });
   ipcMain.handle('update', async (event, arg) => {
-    if(arg !== 'check') return;
-    const updateinfo = await autoUpdater.checkForUpdatesAndNotify()
-    if(!updateinfo) return false
-    let update = autoUpdater.currentVersion.compare(updateinfo.updateInfo.version)
-    version = updateinfo.updateInfo.version
-    if(update === -1) return updateinfo.updateInfo.version
+    if (arg !== 'check') return;
+    const updateinfo = await autoUpdater.checkForUpdatesAndNotify();
+    console.log(updateinfo?.updateInfo.releaseNotes)
+    if (!updateinfo) return false;
+    const update = autoUpdater.currentVersion.compare(
+      updateinfo.updateInfo.version
+    );
+    version = updateinfo.updateInfo.version;
+    if (update === -1) return [updateinfo.updateInfo.version, updateinfo.updateInfo.releaseNotes];
 
-  })
+  });
 
-  autoUpdater.on("download-progress",(info)=> {
-    mainWindow?.webContents.send("update", "progress", version, info.percent)
-  })
+  autoUpdater.on('download-progress', (info) => {
+    mainWindow?.webContents.send('update', 'progress', version, info.percent);
+  });
 
   autoUpdater.on('update-downloaded', (info) => {
-    console.log('download ready' + info.version);
-    mainWindow?.webContents.send('update', "ready", info.version)
+    console.log(`download ready ${info.version}`);
+    mainWindow?.webContents.send('update', 'ready', info.version);
   });
 };
 
@@ -166,51 +162,47 @@ const dataPath = app.getPath('userData');
  * Add event listeners...
  */
 
+listeners()
+
 ipcMain.on('update', (event, arg) => {
   if (arg === 'download') {
     autoUpdater.downloadUpdate();
-    event.reply('update',("downloading"))
+    event.reply('update', 'downloading');
   }
-  if(arg === "ready") {
-    autoUpdater.autoRunAppAfterInstall = true
-    autoUpdater.quitAndInstall()
+  if (arg === 'ready') {
+    autoUpdater.autoRunAppAfterInstall = true;
+    autoUpdater.quitAndInstall();
   }
 });
 
-
 ipcMain.on('syncData', (event) => {
-  let res = fs.existsSync(path.join(dataPath, 'data.json'));
+  const res = fs.existsSync(path.join(dataPath, 'data.json'));
   if (res) {
-    let dt = fs.readFileSync(path.join(dataPath, 'data.json'));
-    let data = JSON.parse(dt.toString());
+    const dt = fs.readFileSync(path.join(dataPath, 'data.json'));
+    const data = JSON.parse(dt.toString());
     event.reply('syncData', data);
   }
 });
 
 ipcMain.handle('saveData', (event, data: ConfigData) => {
   console.log(data);
-  let sData = JSON.stringify(data);
+  const sData = JSON.stringify(data);
   fs.writeFileSync(path.join(dataPath, 'data.json'), sData);
-  console.log('Data Saved in' + path.join(dataPath, 'data.json'));
+  console.log(`Data Saved in${path.join(dataPath, 'data.json')}`);
   return true;
 });
 
 ipcMain.handle('open-dialog', async (event, options) => {
-  const result = await dialog.showOpenDialog(options);
-  return result;
+  return await dialog.showOpenDialog(options);
 });
+
+ipcMain.handle("save-dialog",async (event, options) => {
+  return await dialog.showSaveDialog(options)
+})
 
 ipcMain.on('close', (event, arg) => {
   if (arg === 'closeApp') app.quit();
 });
-
-ipcMain.handle('xbox-clip-sorting', async (event, arg: string) => {
-  return sortVideosByFirstWord(arg);
-});
-
-ipcMain.handle('extractFrames',async (event, path: string) => {
-  return extractFrames(path)
-})
 
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
@@ -238,5 +230,5 @@ app
   })
   .catch(console.log);
 
-
-  export {app}
+// eslint-disable-next-line import/prefer-default-export
+export { app, mainWindow };

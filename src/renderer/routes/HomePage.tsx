@@ -1,30 +1,38 @@
-import { UpdateCheckResult } from 'electron-updater';
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SelectedPageContext } from 'renderer/utils/context/SelectedPageContext';
-import { Container, Page } from 'renderer/utils/styled-components';
+import { Container } from 'renderer/utils/styled-components';
 
 type UpdateType = {
   availible: boolean;
   downloaded: boolean;
   progress: number | undefined;
   version?: string;
+  patchnotes?: string;
 };
 
-export function HomePage() {
+export default function HomePage() {
   const [update, setUpdate] = useState<UpdateType>();
-  const navigate = useNavigate();
   const { updatePage } = useContext(SelectedPageContext);
   useEffect(() => {
     updatePage('Home');
 
-    window.electron.ipcRenderer.invoke("update", "check").then((result:false | string) => {
-      if(result) setUpdate({ availible: true, version: result, downloaded: false, progress: undefined });
-    })
-  }, []);
+    window.electron.ipcRenderer
+      .invoke('update', 'check')
+      .then((result: string[]) => {
+        if (result)
+          setUpdate({
+            availible: true,
+            version: result[0],
+            downloaded: false,
+            progress: undefined,
+            patchnotes: result[1],
+          });
+      });
+  });
 
   window.electron.ipcRenderer.on('update', (arg, version, percent) => {
-    console.log("update")
+    console.log('update');
     if (arg === 'ready' && typeof version === 'string')
       setUpdate({
         version,
@@ -44,6 +52,9 @@ export function HomePage() {
         version,
       });
   });
+
+
+
   return (
     <Container>
       {update?.availible ? (
@@ -52,7 +63,16 @@ export function HomePage() {
             {update?.progress ? (
               <text>Downloading update: {Math.round(update.progress)}%</text>
             ) : (
-              <text>New Version: v{update?.version}</text>
+              <>
+                {update.patchnotes ? (
+                  <>
+                    <text>New Version: v{update?.version}</text><br />
+                    {update.patchnotes}
+                  </>
+                ) : (
+                  <text>New Version: v{update?.version}</text>
+                )}
+              </>
             )}
             {update?.downloaded ? (
               <>
