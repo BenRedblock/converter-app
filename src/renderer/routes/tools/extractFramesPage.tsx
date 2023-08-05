@@ -1,5 +1,7 @@
 import { Alert, LinearProgress, Snackbar } from '@mui/material';
 import { useContext, useEffect, useState } from 'react';
+import Progress from 'renderer/components/Progress';
+import VideoSelect from 'renderer/components/VideoSelect';
 import { SelectedPageContext } from 'renderer/utils/context/SelectedPageContext';
 import {
   Container,
@@ -8,7 +10,7 @@ import {
 } from 'renderer/utils/styled-components';
 import { SnachbarType, ipcMainresponse } from 'renderer/utils/types';
 
-export default function Vid2ImgPage() {
+export default function extractFramesPage() {
   const [videopath, setVideoPath] = useState<string>();
   const { updatePage } = useContext(SelectedPageContext);
   const [snackbar, setSnackbar] = useState<SnachbarType>({
@@ -17,36 +19,40 @@ export default function Vid2ImgPage() {
     type: 'info',
   });
   const [progress, setProgress] = useState<number | undefined>();
+  const [remaining, setRemaining] = useState<string | undefined>();
+  const [fps, setFps] = useState<number | undefined>();
 
   useEffect(() => {
     updatePage('Video To Image Converter');
   }, []);
-
   window.electron.ipcRenderer.on('extractFrames', (progress: any) => {
-    console.log(progress)
-    if (typeof progress === 'number') setProgress(progress);
-    else if (progress[0]) {
-      setSnackbar({ open: true, message: progress[1], type: 'success' });
+    if (typeof progress.percent === 'number') {
+      setProgress(progress.percent);
+      setRemaining(progress.remaining);
+    } else if (progress[0] === true) {
+      setTimeout(() => {setSnackbar({
+        open: true,
+        message: progress[1],
+        type: 'success',
+      });
       setProgress(undefined);
+      setRemaining(undefined)},2000)
     } else {
-      setSnackbar({ open: true, message: progress[1], type: 'error' });
+      setTimeout(()=> {
+        setSnackbar({
+          open: true,
+          message: progress[1],
+          type: 'error',
+        });
+        setProgress(undefined);
+        setRemaining(undefined)
+      },2000)
     }
   });
 
   const extractFrames = () => {
-    console.log(videopath);
     window.electron.ipcRenderer.sendMessage('extractFrames', videopath);
-  };
-  const openDialog = () => {
-    window.electron
-      .openDialog({
-        properties: ['openFile'],
-        filters: [{ name: 'Videos', extensions: ['mp4', 'mov', 'avi'] }],
-      })
-      .then((result) => {
-        if (result.canceled) return;
-        setVideoPath(result.filePaths[0]);
-      });
+    setProgress(1)
   };
 
   return (
@@ -68,14 +74,14 @@ export default function Vid2ImgPage() {
         </Alert>
       </Snackbar>
       <h1>Extract Frames</h1>
-      <SecondaryButton onClick={openDialog}>SelectVideo</SecondaryButton>
-      <br />
+      Input:
+      <VideoSelect onVideoSelect={(path) => setVideoPath(path)} />
       {videopath ? (
-        <>
-          Selected: {videopath}
-          <br />
-          {progress ? <div className='background'><LinearProgress variant="determinate"  value={progress} /></div> : <PrimaryButton onClick={extractFrames}>Extract Frames</PrimaryButton>}
-        </>
+        progress ? (
+          <Progress percent={progress} remaining={remaining} />
+        ) : (
+          <div className='center'><PrimaryButton onClick={extractFrames}>Extract Frames</PrimaryButton></div>
+        )
       ) : (
         <></>
       )}

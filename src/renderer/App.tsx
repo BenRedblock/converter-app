@@ -3,7 +3,7 @@ import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { useState } from 'react';
-import Vid2ImgPage from './routes/tools/vid2imgPage';
+import ExtractFramesPage from './routes/tools/extractFramesPage';
 import HomePage from './routes/HomePage';
 import Navbar from './components/Navbar';
 import { SelectedPageContext } from './utils/context/SelectedPageContext';
@@ -45,7 +45,7 @@ export default function App() {
             </Routes>
             <Routes>
               <Route path="/" element={<HomePage />} />
-              <Route path="/tools/vid2img" element={<Vid2ImgPage />} />
+              <Route path="/tools/vid2img" element={<ExtractFramesPage />} />
               <Route
                 path="/tools/xbox-sorting"
                 element={<XboxGameBarClipsSorting />}

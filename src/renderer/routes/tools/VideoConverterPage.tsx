@@ -69,9 +69,6 @@ export default function VideoConverterPage() {
     }
   });
 
-  console.log(`Progress: ${progress}`)
-  console.log(remaining)
-
   const clickConvert = () => {
     setProgress(1);
     window.electron.ipcRenderer.sendMessage('video-convert', {

@@ -2,6 +2,7 @@ import ffmpeg from 'fluent-ffmpeg';
 import { mainWindow } from '../main';
 import fs from 'fs';
 import path from 'path';
+import { calculateProgress } from './utils';
 const ffmpegPath = require('ffmpeg-static-electron').path.replace(
   'app.asar',
   'app.asar.unpacked'
@@ -28,18 +29,25 @@ ffmpeg.setFfprobePath(ffprobePath)
   }
 
   fs.mkdirSync(framesDirectory);
+  let seconds = 0
 
-  const command = ffmpeg()
+  const intervalId = setInterval(() => {
+    seconds++
+  }, 1000)
+
+  ffmpeg()
     .input(inputVideo)
-    .saveToFile(path.join(framesDirectory, 'frame-%d.jpg'))
-    .on('progress', (progress) => {
-      mainWindow?.webContents.send("extractFrames", Math.round(progress.percent))
+    .on('progress', async (progress) => {
+      mainWindow?.webContents.send("extractFrames", await calculateProgress(inputVideo, progress, seconds))
     })
     .on("error",(error)=> {
       console.log(error.message)
       mainWindow?.webContents.send("extractFrames", [false, `Failed with Error: ${error.message}`])
+      clearInterval(intervalId)
     })
     .on("end", ()=> {
       mainWindow?.webContents.send("extractFrames", [true, "Extraction succeeded"])
+      clearInterval(intervalId)
     })
+    .saveToFile(path.join(framesDirectory, 'frame-%d.jpg'))
 }

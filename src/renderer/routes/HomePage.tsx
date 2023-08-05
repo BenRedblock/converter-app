@@ -32,7 +32,6 @@ export default function HomePage() {
   });
 
   window.electron.ipcRenderer.on('update', (arg, version, percent) => {
-    console.log('update');
     if (arg === 'ready' && typeof version === 'string')
       setUpdate({
         version,

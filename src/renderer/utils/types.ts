@@ -75,3 +75,9 @@ enum ImageFormats {
   PNG = 'png',
   TIF = 'tif',
 }
+
+
+export type ProgressType = {
+  percent: number;
+  remaining: string;
+}

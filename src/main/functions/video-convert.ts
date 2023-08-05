@@ -15,7 +15,6 @@ import { calculateProgress } from "./utils";
 ffmpeg.setFfmpegPath(ffmpegPath)
 ffmpeg.setFfprobePath(ffprobePath)
 export default function videoConvert(options:VideoConvertOptions) {
-  console.log(options.destinationPath)
 
   const destinationpath = options.destinationPath.split("/").pop()?.endsWith(`.${options.format}`) ? options.destinationPath : `${options.destinationPath}.${options.format}`
 
@@ -33,7 +32,6 @@ command.addOption("-qscale 1")
 
 
   command.on("progress",async (progress)=> {
-    console.log("progress")
     mainWindow?.webContents.send("video-convert", await calculateProgress(options.inputPath, progress, seconds))
   })
   .on("end",()=> {

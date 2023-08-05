@@ -127,12 +127,6 @@ const createWindow = async () => {
    * Autoupdate Notify
    */
   let version: string = String(autoUpdater.currentVersion);
-  // autoUpdater.on('update-available', (info) => {
-  //   console.log("update-availible")
-  //   updateavailible = true
-  //   // mainWindow?.webContents.send('update', "available", info.version, autoUpdater.currentVersion)
-  //   version = info.version
-  // });
   ipcMain.handle('update', async (event, arg) => {
     if (arg !== 'check') return;
     const updateinfo = await autoUpdater.checkForUpdatesAndNotify();
