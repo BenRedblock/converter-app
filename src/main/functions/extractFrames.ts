@@ -37,6 +37,7 @@ ffmpeg.setFfprobePath(ffprobePath)
 
   ffmpeg()
     .input(inputVideo)
+    .addOption("-qscale 1")
     .on('progress', async (progress) => {
       mainWindow?.webContents.send("extractFrames", await calculateProgress(inputVideo, progress, seconds))
     })
