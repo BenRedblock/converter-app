@@ -16,20 +16,20 @@ export default function HomePage() {
   const { updatePage } = useContext(SelectedPageContext);
   useEffect(() => {
     updatePage('Home');
-
+    console.log(1)
     window.electron.ipcRenderer
       .invoke('update', 'check')
       .then((result: string[]) => {
-        if (result)
+        if (result.length === 2)
           setUpdate({
             availible: true,
             version: result[0],
             downloaded: false,
             progress: undefined,
             patchnotes: result[1],
-          });
-      });
-  });
+          })
+      }).catch((e) => console.log(e))
+  },[]);
 
   window.electron.ipcRenderer.on('update', (arg, version, percent) => {
     if (arg === 'ready' && typeof version === 'string')
@@ -62,16 +62,16 @@ export default function HomePage() {
             {update?.progress ? (
               <text>Downloading update: {Math.round(update.progress)}%</text>
             ) : (
-              <>
-                {update.patchnotes ? (
-                  <>
-                    <text>New Version: v{update?.version}</text><br />
-                    {update.patchnotes}
-                  </>
-                ) : (
+              // <>
+              //   {update.patchnotes ? (
+              //     <>
+              //       <text>New Version: v{update?.version}</text><br />
+              //       {update.patchnotes}
+              //     </>
+              //   ) : (
                   <text>New Version: v{update?.version}</text>
-                )}
-              </>
+              //   )}
+              // </>
             )}
             {update?.downloaded ? (
               <>

@@ -27,7 +27,6 @@ class AppUpdater {
     autoUpdater.logger = log;
     autoUpdater.autoDownload = false;
     autoUpdater.autoInstallOnAppQuit = true;
-    autoUpdater.checkForUpdates();
   }
 }
 
@@ -129,7 +128,7 @@ const createWindow = async () => {
   let version: string = String(autoUpdater.currentVersion);
   ipcMain.handle('update', async (event, arg) => {
     if (arg !== 'check') return;
-    const updateinfo = await autoUpdater.checkForUpdatesAndNotify();
+    const updateinfo = await autoUpdater.checkForUpdates();
     console.log(updateinfo?.updateInfo.releaseNotes)
     if (!updateinfo) return false;
     const update = autoUpdater.currentVersion.compare(
