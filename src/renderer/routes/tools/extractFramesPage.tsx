@@ -1,90 +1,117 @@
-import { Alert, LinearProgress, Snackbar } from '@mui/material';
+import { Alert, Checkbox, Snackbar } from '@mui/material';
 import { useContext, useEffect, useState } from 'react';
 import Progress from 'renderer/components/Progress';
-import VideoSelect from 'renderer/components/VideoSelect';
+import VideoSelect from 'renderer/components/FileSelect';
+import { HistoryContext } from 'renderer/utils/context/HistoryContext';
 import { SelectedPageContext } from 'renderer/utils/context/SelectedPageContext';
+import { SnackbarContext } from 'renderer/utils/context/SnackbarContext';
 import {
   Container,
+  HistoryBox,
+  InputField,
   PrimaryButton,
-  SecondaryButton,
 } from 'renderer/utils/styled-components';
-import { SnachbarType, ipcMainresponse } from 'renderer/utils/types';
+import { ProgressType, extractFramesInputType } from 'renderer/utils/types';
+import { getNameFromPath } from 'util-functions';
+import Moment from 'react-moment';
 
-export default function extractFramesPage() {
+export default function ExtractFramesPage() {
+  const { history } = useContext(HistoryContext);
   const [videopath, setVideoPath] = useState<string>();
   const { updatePage } = useContext(SelectedPageContext);
-  const [snackbar, setSnackbar] = useState<SnachbarType>({
-    open: false,
-    message: 'undefined',
-    type: 'info',
-  });
-  const [progress, setProgress] = useState<number | undefined>();
-  const [remaining, setRemaining] = useState<string | undefined>();
-  const [fps, setFps] = useState<number | undefined>();
+  const {updateSnackbar} = useContext(SnackbarContext)
+  const [progress, setProgress] = useState<ProgressType | undefined>();
+  const [fps, setFps] = useState<string>('1');
+  const [customFps, setCustomFps] = useState<boolean>(false);
 
   useEffect(() => {
     updatePage('Video To Image Converter');
-  }, []);
-  window.electron.ipcRenderer.on('extractFrames', (progress: any) => {
-    if (typeof progress.percent === 'number') {
-      setProgress(progress.percent);
-      setRemaining(progress.remaining);
-    } else if (progress[0] === true) {
-      setTimeout(() => {setSnackbar({
-        open: true,
-        message: progress[1],
-        type: 'success',
-      });
-      setProgress(undefined);
-      setRemaining(undefined)},2000)
-    } else {
-      setTimeout(()=> {
-        setSnackbar({
+  });
+  window.electron.ipcRenderer.on('extractFrames', (arg: any) => {
+    if (typeof arg.percent === 'number') {
+      setProgress(arg);
+    } else if (arg[0] === true) {
+      setTimeout(() => {
+        updateSnackbar({
           open: true,
-          message: progress[1],
+          message: arg[1],
+          type: 'success',
+        });
+        setProgress(undefined);
+      }, 2000);
+    } else {
+      setTimeout(() => {
+        updateSnackbar({
+          open: true,
+          message: arg[1],
           type: 'error',
         });
         setProgress(undefined);
-        setRemaining(undefined)
-      },2000)
+      }, 2000);
     }
   });
 
   const extractFrames = () => {
-    window.electron.ipcRenderer.sendMessage('extractFrames', videopath);
-    setProgress(1)
+    if(!videopath) return updateSnackbar({open: true, message: "No Videopath", type: 'warning'})
+    const obj: extractFramesInputType = {inputFile: videopath, fps: fps.length>0 && customFps? fps : undefined }
+    window.electron.ipcRenderer.sendMessage('extractFrames', obj);
+    setProgress({ percent: 1 });
   };
 
   return (
-    //html
     <Container>
-      <Snackbar
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar({ open: false, message: '', type: 'info' })}
-      >
-        <Alert
-          onClose={() =>
-            setSnackbar({ open: false, message: '', type: 'info' })
-          }
-          severity={snackbar.type}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
       <h1>Extract Frames</h1>
       Input:
-      <VideoSelect onVideoSelect={(path) => setVideoPath(path)} />
-      {videopath ? (
-        progress ? (
-          <Progress percent={progress} remaining={remaining} />
-        ) : (
-          <div className='center'><PrimaryButton onClick={extractFrames}>Extract Frames</PrimaryButton></div>
-        )
-      ) : (
-        <></>
-      )}
+      <VideoSelect key={1} type='video' onFileSelect={(path) => setVideoPath(path)} />
+      <div className="flex">
+        <div className='flex'><Checkbox
+          checked={customFps}
+          onChange={(e) => setCustomFps(e.target.checked)}
+        />
+          WithFrameRate
+        </div>
+        {customFps ? (
+          <>
+            {' '}
+            <InputField
+              min={'1'}
+              max={'248'}
+              value={fps}
+              onChange={(e) => setFps(e.target.value)}
+              type="number"
+            />{' '}
+            kbps
+          </>
+        ) : null}
+      </div>
+      {videopath && !progress && (!customFps || (fps.length > 0 && parseInt(fps) < 248)  ) ? (
+        <div className="center">
+          <PrimaryButton onClick={extractFrames}>Extract Frames</PrimaryButton>
+        </div>
+      ) : null}
+      {progress ? (
+        <Progress
+          percent={progress.percent}
+          remaining={progress.remaining}
+          text={progress.text}
+        />
+      ) : null}
+      {history?.extractFrames.map((item) => {
+        const name = getNameFromPath(item.outputdir);
+        return (
+          <HistoryBox key={item.outputdir}>
+            <div>
+              Extracted frames to{' '}
+              <a onClick={() => window.electron.shell.openPath(item.outputdir)}>
+                {name.name}
+              </a>
+            </div>
+            <div className='end'>
+              <Moment format='HH:mm:ss' date={item.timestamp} />
+            </div>
+          </HistoryBox>
+        );
+      })}
     </Container>
   );
 }

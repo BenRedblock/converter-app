@@ -1,5 +1,4 @@
 import { useContext, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { SelectedPageContext } from 'renderer/utils/context/SelectedPageContext';
 import { Container } from 'renderer/utils/styled-components';
 
@@ -57,7 +56,6 @@ export default function HomePage() {
   return (
     <Container>
       {update?.availible ? (
-        <>
           <div className="update">
             {update?.progress ? (
               <text>Downloading update: {Math.round(update.progress)}%</text>
@@ -93,10 +91,7 @@ export default function HomePage() {
               </button>
             )}
           </div>
-        </>
-      ) : (
-        <></>
-      )}
+      ) : null}
     </Container>
   );
 }

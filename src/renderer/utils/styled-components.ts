@@ -120,7 +120,6 @@ export const InputField = styled.input`
   margin: 5px;
   padding: 8px 8px;
   box-sizing: border-box;
-  front-size: 16px;
   color: #fff;
   background-color: #272829;
   border-radius: 5px;
@@ -138,9 +137,8 @@ export const Select = styled.select`
 outline: none;
   margin: 5px;
   width: 100%;
-  padding: 15px;
+  padding: 10px;
   background-color: #2f3031;
-  border: none;
   border-radius: 5px;
   border: 1px solid #3a3a3a;
   appearance: none;
@@ -155,3 +153,11 @@ outline: none;
     transition: all 0.2s;
   }
 `;
+
+export const HistoryBox = styled.div`
+min-width: 100%;
+border-radius: 5px;
+border: 1px solid #5c3cec;
+margin: 3px;
+padding: 5px;
+`

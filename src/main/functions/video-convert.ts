@@ -9,7 +9,7 @@ const ffprobePath = require('ffprobe-static-electron').path.replace(
 
 import ffmpeg from "fluent-ffmpeg"
 import { mainWindow } from "../main";
-import { VideoConvertOptions } from "renderer/utils/types";
+import { VideoConvertHistoryType, VideoConvertOptions } from "renderer/utils/types";
 import { calculateProgress } from "./utils";
 
 ffmpeg.setFfmpegPath(ffmpegPath)
@@ -36,6 +36,8 @@ command.addOption("-qscale 1")
   })
   .on("end",()=> {
     mainWindow?.webContents.send("video-convert", [true, 'Finished converting'])
+    const history: VideoConvertHistoryType = {inputVideo: options.inputPath, format: options.format, outputVideo: destinationpath, timestamp: new Date()}
+    mainWindow?.webContents.send("history", "VideoConvert", history)
     clearInterval(intervalId)
   })
   .on("error",(error)=> {

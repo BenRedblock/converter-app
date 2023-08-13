@@ -3,8 +3,13 @@ import { dialog } from 'electron';
 import { useContext, useEffect, useState } from 'react';
 import { ConfigDataContext } from 'renderer/utils/context/ConfigDataContext';
 import { SelectedPageContext } from 'renderer/utils/context/SelectedPageContext';
-import { BigButton, PrimaryButton } from 'renderer/utils/styled-components';
-import { SnachbarType, ipcMainresponse } from 'renderer/utils/types';
+import { SnackbarContext } from 'renderer/utils/context/SnackbarContext';
+import {
+  BigButton,
+  Container,
+  PrimaryButton,
+} from 'renderer/utils/styled-components';
+import { ipcMainresponse } from 'renderer/utils/types';
 
 export default function XboxGameBarClipsSorting() {
   const { updatePage } = useContext(SelectedPageContext);
@@ -12,11 +17,7 @@ export default function XboxGameBarClipsSorting() {
   const [response, setResponse] = useState<undefined | boolean | string>(
     undefined
   );
-  const [snackbar, setSnackbar] = useState<SnachbarType>({
-    open: false,
-    message: 'undefined',
-    type: 'info',
-  });
+  const { updateSnackbar } = useContext(SnackbarContext);
 
   useEffect(() => {
     updatePage('Xbox Clip sorting');
@@ -42,27 +43,21 @@ export default function XboxGameBarClipsSorting() {
       .invoke('xbox-clip-sorting', configData?.xboxClipsPath)
       .then((result: ipcMainresponse) => {
         if (result.completed)
-          setSnackbar({ open: true, message: result.message, type: 'success' });
-        else setSnackbar({ open: true, message: result.message, type: "error"})
+          updateSnackbar({
+            open: true,
+            message: result.message,
+            type: 'success',
+          });
+        else
+          updateSnackbar({
+            open: true,
+            message: result.message,
+            type: 'error',
+          });
       });
   };
   return (
-    <div>
-      <Snackbar
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar({ open: false, message: '', type: 'info' })}
-      >
-        <Alert
-          onClose={() =>
-            setSnackbar({ open: false, message: '', type: 'info' })
-          }
-          severity={snackbar.type}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+    <Container>
       <BigButton onClick={handleClick}>Choose Folder</BigButton>
       {configData && (
         <>
@@ -70,6 +65,6 @@ export default function XboxGameBarClipsSorting() {
           <PrimaryButton onClick={ClickSort}>Sort</PrimaryButton>
         </>
       )}
-    </div>
+    </Container>
   );
 }

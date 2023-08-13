@@ -27,7 +27,7 @@ export default function Navbar() {
 
   const drawerWidth = 240;
 
-  const urls = ['/tools/vid2img', "/tools/xbox-sorting", "/tools/video-converter"];
+  const urls = ['/tools/vid2img', "/tools/xbox-sorting", "/tools/video-converter", "/tools/audio-converter"];
 
   const drawerHTML = (
     <div>
@@ -56,7 +56,8 @@ export default function Navbar() {
         {[
           'Video To Image Converter',
           'Xbox Clip sorting',
-          'Video Converter'
+          'Video Converter',
+          'Audio Converter'
         ].map((text, index) => (
           <ListItem
             key={text}

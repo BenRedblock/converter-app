@@ -1,6 +1,6 @@
 // Disable no-unused-vars, broken for spread args
 /* eslint no-unused-vars: off */
-import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
+import { contextBridge, ipcRenderer, IpcRendererEvent, shell } from 'electron';
 import { ConfigData } from 'renderer/utils/types';
 
 export type Channels =
@@ -11,6 +11,8 @@ export type Channels =
   | 'update'
   | 'extractFrames'
   | 'video-convert'
+  | 'audio-convert'
+  | 'history'
 
 const saveData = (data: ConfigData): Promise<boolean> => {
   console.log('saving Data' + data);
@@ -53,6 +55,14 @@ const electronHandler = {
     options: Electron.SaveDialogOptions
   ): Promise<Electron.SaveDialogReturnValue> => {
     return ipcRenderer.invoke('save-dialog', options);
+  },
+  shell: {
+    openPath: (path: string) => {
+      return ipcRenderer.send("shell", "openPath", path)
+    },
+    showItemInFolder: (path: string) => {
+      return ipcRenderer.send("shell", "showItemInFolder", path)
+    },
   }
 };
 

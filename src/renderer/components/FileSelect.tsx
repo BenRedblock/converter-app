@@ -2,41 +2,43 @@ import { IconButton } from '@mui/material';
 import { useEffect, useState } from 'react';
 import FindInPageIcon from '@mui/icons-material/FindInPage';
 import { InputField } from 'renderer/utils/styled-components';
+import { AudioFormats, VideoFormats } from 'renderer/utils/types';
 
 interface Props {
-  onVideoSelect: (path: string | undefined) => void;
+  onFileSelect: (path: string | undefined) => void;
+  type: 'video' | 'audio' | 'all';
 }
 
-export default function VideoSelect({ onVideoSelect }: Props) {
-  const [videoPath, setVideoPath] = useState<string>();
+export default function FileSelect({ onFileSelect, type }: Props) {
+  const [filePath, setFilePath] = useState<string>();
 
   const handleFileSelect = () => {
     window.electron
       .openDialog({
-        title: 'Select a Video',
+        title: 'Select a File',
         properties: ['openFile'],
         filters: [
           {
             name: 'Videos',
-            extensions: ['mp4', 'mov', 'avi', 'mkv', 'webm', 'flv'],
+            extensions: type === "video" ? VideoFormats : type === "audio" ? AudioFormats : [],
           },
         ],
       })
       .then((result) => {
         if (result.canceled) return;
-        setVideoPath(result.filePaths[0]);
+        setFilePath(result.filePaths[0]);
       });
   };
 
   useEffect(() => {
-    onVideoSelect(videoPath);
-  }, [videoPath]);
+    onFileSelect(filePath);
+  }, [filePath]);
 
   return (
     <div className="flex">
       <InputField
-        value={videoPath}
-        onChange={(e) => setVideoPath(e.target.value)}
+        value={filePath}
+        onChange={(e) => setFilePath(e.target.value)}
         style={{ flex: 1 }}
       />
       <IconButton onClick={handleFileSelect}>

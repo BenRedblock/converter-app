@@ -1,76 +1,82 @@
-import { Alert, Checkbox, LinearProgress, Snackbar } from '@mui/material';
+import { Alert, Checkbox, Snackbar } from '@mui/material';
 import { useContext, useEffect, useState } from 'react';
 import { SelectedPageContext } from 'renderer/utils/context/SelectedPageContext';
 import {
   Container,
+  HistoryBox,
   InputField,
   PrimaryButton,
 } from 'renderer/utils/styled-components';
-import { SnachbarType } from 'renderer/utils/types';
-import VideoSelect from 'renderer/components/VideoSelect';
+import { AudioFormats, ProgressType, VideoFormats } from 'renderer/utils/types';
+import VideoSelect from 'renderer/components/FileSelect';
 import Dropdown from 'renderer/components/Dropdown';
 import DestinationSelect from 'renderer/components/DestinationSelect';
 import Progress from 'renderer/components/Progress';
+import { HistoryContext } from 'renderer/utils/context/HistoryContext';
+import { getNameFromPath } from 'util-functions';
+import { SnackbarContext } from 'renderer/utils/context/SnackbarContext';
+import FileSelect from 'renderer/components/FileSelect';
+import Moment from 'react-moment';
 
 export default function VideoConverterPage() {
   const [crf, setCRF] = useState(true);
   const [bitrate, setBitrate] = useState<string>('8000');
+  const { history } = useContext(HistoryContext);
   const [inputPath, setInputPath] = useState<string | undefined>();
   const { updatePage } = useContext(SelectedPageContext);
-  const [snackbar, setSnackbar] = useState<SnachbarType>({
-    open: false,
-    message: 'undefined',
-    type: 'info',
-  });
-  const [progress, setProgress] = useState<number | undefined>();
-  const [remaining, setRemaining] = useState<string | undefined>();
+  const { updateSnackbar } = useContext(SnackbarContext);
+  const [progress, setProgress] = useState<ProgressType | undefined>();
   const [format, setFormat] = useState<string>('1');
   const [destinationPath, setDestinationPath] = useState<string | undefined>();
+  // const Formats = [
+  //   'VIDEO',
+  //   'mp4',
+  //   'mov',
+  //   'avi',
+  //   'webm',
+  //   'gif',
+  //   'AUDIO',
+  //   'mp3',
+  //   'aac',
+  //   'ac3',
+  //   'eac3',
+  //   'dts',
+  //   'wav',
+  //   'flac',
+  //   'ogg',
+  // ];
   const Formats = [
     'VIDEO',
-    'mp4',
-    'mov',
-    'avi',
-    'webm',
-    'gif',
+    ...VideoFormats,
     'AUDIO',
-    'mp3',
-    'adts',
-    'wav',
-    'flac',
-  ];
-
+    ...AudioFormats
+  ]
   useEffect(() => {
     updatePage('Video Converter');
   });
 
   window.electron.ipcRenderer.on('video-convert', (arg: any) => {
-    if (typeof arg.remaining === 'string') {
-      if(arg.percent) setProgress(arg.percent);
-      setRemaining(arg.remaining)
+    if (arg.remaining && arg.percent && progress !== undefined) {
+      setProgress(arg);
     } else if (arg[0] === true) {
-      setTimeout(() => {setSnackbar({
+      setProgress(undefined);
+      updateSnackbar({
         open: true,
         message: arg[1],
         type: 'success',
       });
-      setProgress(undefined);
-      setRemaining(undefined)},2000)
     } else if (arg[0] === false) {
-      setTimeout(()=> {
-        setSnackbar({
-          open: true,
-          message: arg[1],
-          type: 'error',
-        });
-        setProgress(undefined);
-        setRemaining(undefined)
-      },2000)
+      setProgress(undefined);
+      updateSnackbar({
+        open: true,
+        message: arg[1],
+        type: 'error',
+      });
     }
   });
 
   const clickConvert = () => {
-    setProgress(1);
+    setProgress({ percent: 1, remaining: 'Calculating Progress' });
     window.electron.ipcRenderer.sendMessage('video-convert', {
       inputPath,
       format: Formats[parseInt(format)],
@@ -81,29 +87,18 @@ export default function VideoConverterPage() {
 
   return (
     <Container>
-      <Snackbar
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar({ open: false, message: '', type: 'info' })}
-      >
-        <Alert
-          onClose={() =>
-            setSnackbar({ open: false, message: '', type: 'info' })
-          }
-          severity={snackbar.type}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
       <h1>Video Converter</h1>
       Input:
-      <VideoSelect key={1} onVideoSelect={(path) => setInputPath(path)} />
+      <FileSelect
+        type="video"
+        key={1}
+        onFileSelect={(path) => setInputPath(path)}
+      />
       Format:
       <Dropdown
         key={2}
         options={Formats}
-        category={[0, 6]}
+        category={[0, 7]}
         select="1"
         onSelect={(e) => setFormat(e)}
       />
@@ -133,17 +128,50 @@ export default function VideoConverterPage() {
         fileName={inputPath?.split('.').shift()}
         format={Formats[parseInt(format)]}
       />
-      {format && inputPath && destinationPath && (bitrate.length > 0 || crf) ? (
+      {format &&
+      inputPath &&
+      destinationPath &&
+      !progress &&
+      (bitrate.length > 0 || crf) ? (
         <div style={{ display: 'grid', placeItems: 'center' }}>
-          {progress ? (
-            <Progress key={4} percent={progress} remaining={remaining} />
-          ) : (
-            <PrimaryButton onClick={clickConvert}>Convert</PrimaryButton>
-          )}
+          <PrimaryButton onClick={clickConvert}>Convert</PrimaryButton>
         </div>
       ) : (
         <></>
       )}
+      {progress ? (
+        <Progress
+          key={4}
+          percent={progress.percent}
+          remaining={progress.remaining}
+          text={progress.text}
+        />
+      ) : null}
+      {history?.VideoConvert.map((item) => {
+        return (
+          <HistoryBox>
+            Converted{' '}
+            <a
+              onClick={() =>
+                window.electron.shell.showItemInFolder(item.inputVideo)
+              }
+            >
+              {getNameFromPath(item.inputVideo).name}
+            </a>{' '}
+            to{' '}
+            <a
+              onClick={() =>
+                window.electron.shell.showItemInFolder(item.outputVideo)
+              }
+            >
+              {getNameFromPath(item.outputVideo).name}
+            </a>
+            <div className='end'>
+              <Moment format='HH:mm:ss' date={item.timestamp} />
+            </div>
+          </HistoryBox>
+        );
+      })}
     </Container>
   );
 }

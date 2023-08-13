@@ -19,9 +19,8 @@ export default function Dropdown({options, category, onSelect, select}: Props) {
   return (
     <Select value={selected} onChange={(e)=> setSelected(e.target.value)}>
       {options.map((option, index)=> {
-        return(
-          <>
-          {category && category.includes(index) ? <option key={index} disabled value={index}>{option}</option> : <option key={index} value={index}>{option}</option>}
+        return(<>
+          {category && category.includes(index) ? <option key={index +"format"} disabled value={index}>{option}</option> : <option key={index} value={index}>{option}</option>}
           </>
         )
       })}

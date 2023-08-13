@@ -17,8 +17,6 @@ import { ConfigData } from 'renderer/utils/types';
 import fs from 'fs';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
-import sortVideosByFirstWord from './functions/sortVideosByFirstWord';
-import extractFrames  from './functions/extractFrames';
 import listeners from './listeners';
 
 class AppUpdater {
