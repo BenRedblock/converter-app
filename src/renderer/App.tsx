@@ -6,7 +6,6 @@ import { useState } from 'react';
 import ExtractFramesPage from './routes/tools/extractFramesPage';
 import HomePage from './routes/HomePage';
 import Navbar from './components/Navbar';
-import { SelectedPageContext } from './utils/context/SelectedPageContext';
 import XboxGameBarClipsSorting from './routes/tools/XboxGameBarClipsSorting';
 import { ConfigData, HistoryType, SnackbarType } from './utils/types';
 import { ConfigDataContext } from './utils/context/ConfigDataContext';
@@ -28,12 +27,12 @@ export const themeOptions = createTheme({
   },
 });
 export default function App() {
-  const [page, setPage] = useState<string>();
   const [configData, setConfigData] = useState<ConfigData>();
   const [history, setHistory] = useState<HistoryType>({
     VideoConvert: [],
     extractFrames: [],
     AudioConvert: [],
+    Compress: [],
   });
   const [snackbar, setSnackbar] = useState<SnackbarType>({
     open: false,
@@ -41,7 +40,6 @@ export default function App() {
     type: 'info',
   });
 
-  const updatePage = (string: string) => setPage(string);
 
   const updateData = () => window.electron.syncData();
 
@@ -57,6 +55,8 @@ export default function App() {
       setHistory({ ...history, VideoConvert: [arg, ...history.VideoConvert] });
     if (type === 'AudioConvert')
       setHistory({ ...history, AudioConvert: [arg, ...history.AudioConvert] });
+    if(type === 'Compress')
+      setHistory({ ...history, Compress: [arg, ...history.Compress] });
   });
 
   window.electron.ipcRenderer.on('syncData', (data) => {
@@ -65,7 +65,6 @@ export default function App() {
 
   return (
     <ConfigDataContext.Provider value={{ configData, updateData }}>
-      <SelectedPageContext.Provider value={{ page, updatePage }}>
         <HistoryContext.Provider value={{ history }}>
           <SnackbarContext.Provider value={{ snackbar, updateSnackbar }}>
             <ThemeProvider theme={themeOptions}>
@@ -104,7 +103,6 @@ export default function App() {
             </ThemeProvider>
           </SnackbarContext.Provider>
         </HistoryContext.Provider>
-      </SelectedPageContext.Provider>
     </ConfigDataContext.Provider>
   );
 }

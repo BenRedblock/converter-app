@@ -45,6 +45,12 @@ export type VideoConvertHistoryType = {
   timestamp: Date;
 };
 
+export type CompressHistoryType = {
+  inputPath: string;
+  outputPath: string;
+  timestamp: Date;
+};
+
 export type AudioConvertHistoryType = {
   outputAudio: string;
   inputAudio: string;
@@ -56,6 +62,7 @@ export type HistoryType = {
   extractFrames: extractFramesHistroyType[];
   VideoConvert: VideoConvertHistoryType[];
   AudioConvert: AudioConvertHistoryType[];
+  Compress: CompressHistoryType[];
 };
 
 export type extractFramesInputType = {

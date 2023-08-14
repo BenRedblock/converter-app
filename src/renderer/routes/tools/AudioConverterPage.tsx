@@ -5,7 +5,6 @@ import Dropdown from 'renderer/components/Dropdown';
 import FileSelect from 'renderer/components/FileSelect';
 import Progress from 'renderer/components/Progress';
 import { HistoryContext } from 'renderer/utils/context/HistoryContext';
-import { SelectedPageContext } from 'renderer/utils/context/SelectedPageContext';
 import { SnackbarContext } from 'renderer/utils/context/SnackbarContext';
 import {
   Container,
@@ -16,7 +15,6 @@ import { AudioConvertOptions, AudioFormats, ProgressType } from 'renderer/utils/
 import { getNameFromPath } from 'util-functions';
 
 export default function AudioConverterPage() {
-  const { updatePage } = useContext(SelectedPageContext);
   const { history } = useContext(HistoryContext);
   const [progress, setProgress] = useState<ProgressType>();
   const [audiopath, setAudioPath] = useState<string | undefined>();
@@ -24,11 +22,6 @@ export default function AudioConverterPage() {
   const [destinationPath, setDestinationPath] = useState<string | undefined>();
   const { updateSnackbar } = useContext(SnackbarContext);
 
-  const Formats = AudioFormats
-
-  useEffect(() => {
-    updatePage('Audio Converter');
-  });
 
   window.electron.ipcRenderer.on('audio-convert', (arg: any) => {
     if (arg.remaining && arg.percent && progress !== undefined) {
@@ -55,7 +48,7 @@ export default function AudioConverterPage() {
     setProgress({ percent: 1, remaining: 'Calculating Progress' });
     const options: AudioConvertOptions = {
       destinationPath,
-      format: Formats[parseInt(format)],
+      format: AudioFormats[parseInt(format)],
       inputPath: audiopath,
     };
     window.electron.ipcRenderer.sendMessage('audio-convert', options);
@@ -73,7 +66,7 @@ export default function AudioConverterPage() {
       Format:
       <Dropdown
         key={2}
-        options={Formats}
+        options={AudioFormats}
         select="0"
         onSelect={(value) => setFormat(value)}
       />
@@ -82,7 +75,7 @@ export default function AudioConverterPage() {
         key={3}
         onSelect={(value) => setDestinationPath(value)}
         fileName={audiopath?.split('.').shift()}
-        format={Formats[parseInt(format)]}
+        format={AudioFormats[parseInt(format)]}
       />
       {format && audiopath && destinationPath && !progress ? (
         <div className="center">

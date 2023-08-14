@@ -1,27 +1,22 @@
 import {
-  Toolbar,
   Divider,
   List,
   ListItem,
   ListItemButton,
   ListItemText,
-  ListItemIcon,
   IconButton,
   Drawer,
 } from '@mui/material';
-import { NavigationItem } from '../utils/styled-components';
-import { useContext, useState } from 'react';
-import { SelectedPageContext } from 'renderer/utils/context/SelectedPageContext';
+import { useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import HorizontalRuleIcon from '@mui/icons-material/HorizontalRule';
 import Crop32Icon from '@mui/icons-material/Crop32';
 import MenuIcon from '@mui/icons-material/Menu';
 import './components-styles.css';
-import { useNavigate } from 'react-router-dom';
-import { ipcRenderer } from 'electron';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function Navbar() {
-  const { page } = useContext(SelectedPageContext);
+  const location = useLocation()
   const [drawer, setDrawer] = useState<boolean>(false);
   const navigate = useNavigate();
 
@@ -31,8 +26,6 @@ export default function Navbar() {
 
   const drawerHTML = (
     <div>
-      {/* <Toolbar /> */}
-
       <List>
         <ListItem
           key={'Home'}
@@ -42,7 +35,7 @@ export default function Navbar() {
             setDrawer(false);
           }}
         >
-          {'Home' === page ? (
+          {'/' === location.pathname ? (
             <ListItemButton selected>
               <ListItemText primary={'Home'} />
             </ListItemButton>
@@ -67,7 +60,7 @@ export default function Navbar() {
               setDrawer(false);
             }}
           >
-            {text === page ? (
+            {urls[index] === location.pathname ? (
               <ListItemButton selected>
                 <ListItemText primary={text} />
               </ListItemButton>

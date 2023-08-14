@@ -2,7 +2,6 @@ import { Alert, Snackbar } from '@mui/material';
 import { dialog } from 'electron';
 import { useContext, useEffect, useState } from 'react';
 import { ConfigDataContext } from 'renderer/utils/context/ConfigDataContext';
-import { SelectedPageContext } from 'renderer/utils/context/SelectedPageContext';
 import { SnackbarContext } from 'renderer/utils/context/SnackbarContext';
 import {
   BigButton,
@@ -12,16 +11,12 @@ import {
 import { ipcMainresponse } from 'renderer/utils/types';
 
 export default function XboxGameBarClipsSorting() {
-  const { updatePage } = useContext(SelectedPageContext);
   const { configData, updateData } = useContext(ConfigDataContext);
   const [response, setResponse] = useState<undefined | boolean | string>(
     undefined
   );
   const { updateSnackbar } = useContext(SnackbarContext);
 
-  useEffect(() => {
-    updatePage('Xbox Clip sorting');
-  }, []);
 
   const handleClick = () => {
     window.electron

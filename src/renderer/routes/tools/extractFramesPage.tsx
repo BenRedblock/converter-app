@@ -3,7 +3,6 @@ import { useContext, useEffect, useState } from 'react';
 import Progress from 'renderer/components/Progress';
 import VideoSelect from 'renderer/components/FileSelect';
 import { HistoryContext } from 'renderer/utils/context/HistoryContext';
-import { SelectedPageContext } from 'renderer/utils/context/SelectedPageContext';
 import { SnackbarContext } from 'renderer/utils/context/SnackbarContext';
 import {
   Container,
@@ -18,15 +17,11 @@ import Moment from 'react-moment';
 export default function ExtractFramesPage() {
   const { history } = useContext(HistoryContext);
   const [videopath, setVideoPath] = useState<string>();
-  const { updatePage } = useContext(SelectedPageContext);
   const {updateSnackbar} = useContext(SnackbarContext)
   const [progress, setProgress] = useState<ProgressType | undefined>();
   const [fps, setFps] = useState<string>('1');
   const [customFps, setCustomFps] = useState<boolean>(false);
 
-  useEffect(() => {
-    updatePage('Video To Image Converter');
-  });
   window.electron.ipcRenderer.on('extractFrames', (arg: any) => {
     if (typeof arg.percent === 'number') {
       setProgress(arg);

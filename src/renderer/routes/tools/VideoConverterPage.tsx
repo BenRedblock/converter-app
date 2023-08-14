@@ -1,6 +1,5 @@
-import { Alert, Checkbox, Snackbar } from '@mui/material';
+import { Checkbox } from '@mui/material';
 import { useContext, useEffect, useState } from 'react';
-import { SelectedPageContext } from 'renderer/utils/context/SelectedPageContext';
 import {
   Container,
   HistoryBox,
@@ -8,7 +7,6 @@ import {
   PrimaryButton,
 } from 'renderer/utils/styled-components';
 import { AudioFormats, ProgressType, VideoFormats } from 'renderer/utils/types';
-import VideoSelect from 'renderer/components/FileSelect';
 import Dropdown from 'renderer/components/Dropdown';
 import DestinationSelect from 'renderer/components/DestinationSelect';
 import Progress from 'renderer/components/Progress';
@@ -23,7 +21,6 @@ export default function VideoConverterPage() {
   const [bitrate, setBitrate] = useState<string>('8000');
   const { history } = useContext(HistoryContext);
   const [inputPath, setInputPath] = useState<string | undefined>();
-  const { updatePage } = useContext(SelectedPageContext);
   const { updateSnackbar } = useContext(SnackbarContext);
   const [progress, setProgress] = useState<ProgressType | undefined>();
   const [format, setFormat] = useState<string>('1');
@@ -51,9 +48,6 @@ export default function VideoConverterPage() {
     'AUDIO',
     ...AudioFormats
   ]
-  useEffect(() => {
-    updatePage('Video Converter');
-  });
 
   window.electron.ipcRenderer.on('video-convert', (arg: any) => {
     if (arg.remaining && arg.percent && progress !== undefined) {

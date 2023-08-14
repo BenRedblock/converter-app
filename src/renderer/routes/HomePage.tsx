@@ -1,5 +1,4 @@
 import { useContext, useEffect, useState } from 'react';
-import { SelectedPageContext } from 'renderer/utils/context/SelectedPageContext';
 import { Container } from 'renderer/utils/styled-components';
 
 type UpdateType = {
@@ -12,10 +11,7 @@ type UpdateType = {
 
 export default function HomePage() {
   const [update, setUpdate] = useState<UpdateType>();
-  const { updatePage } = useContext(SelectedPageContext);
   useEffect(() => {
-    updatePage('Home');
-    console.log(1)
     window.electron.ipcRenderer
       .invoke('update', 'check')
       .then((result: string[]) => {
