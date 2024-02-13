@@ -1,9 +1,9 @@
-import { createContext } from "react";
-import { HistoryType } from "../types"
+import { createContext } from 'react';
+import { HistoryType } from '../types';
 
 type HistoryContextType = {
   history?: HistoryType;
-}
+};
 
-export const HistoryContext = createContext<HistoryContextType>({
-})
+// eslint-disable-next-line import/prefer-default-export
+export const HistoryContext = createContext<HistoryContextType>({});

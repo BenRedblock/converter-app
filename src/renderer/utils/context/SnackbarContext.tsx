@@ -1,11 +1,12 @@
-import { SnackbarType } from "../types"
-import { createContext } from "react";
+import { createContext } from 'react';
+import { SnackbarType } from '../types';
 
 type SnackbarContextType = {
-  snackbar?: SnackbarType
+  snackbar?: SnackbarType;
   updateSnackbar: (snackbar: SnackbarType) => void;
-}
+};
 
+// eslint-disable-next-line import/prefer-default-export
 export const SnackbarContext = createContext<SnackbarContextType>({
-  updateSnackbar:() => {}
-})
+  updateSnackbar: () => {},
+});

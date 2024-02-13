@@ -1,3 +1,5 @@
+/* eslint-disable import/no-mutable-exports */
+/* eslint-disable import/order */
 /* eslint-disable consistent-return */
 /* eslint global-require: off, no-console: off, promise/always-return: off */
 
@@ -9,15 +11,15 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
-import path from 'path';
-import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron';
-import { autoUpdater } from 'electron-updater';
+import { BrowserWindow, app, dialog, ipcMain, shell } from 'electron';
 import log from 'electron-log';
-import { ConfigData } from 'renderer/utils/types';
+import { autoUpdater } from 'electron-updater';
 import fs from 'fs';
+import path from 'path';
+import { ConfigData } from 'renderer/utils/types';
+import listeners from './listeners';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
-import listeners from './listeners';
 
 class AppUpdater {
   constructor() {
@@ -127,14 +129,17 @@ const createWindow = async () => {
   ipcMain.handle('update', async (event, arg) => {
     if (arg !== 'check') return;
     const updateinfo = await autoUpdater.checkForUpdates();
-    console.log(updateinfo?.updateInfo.releaseNotes)
+    console.log(updateinfo?.updateInfo.releaseNotes);
     if (!updateinfo) return false;
     const update = autoUpdater.currentVersion.compare(
       updateinfo.updateInfo.version
     );
     version = updateinfo.updateInfo.version;
-    if (update === -1) return [updateinfo.updateInfo.version, updateinfo.updateInfo.releaseNotes];
-
+    if (update === -1)
+      return [
+        updateinfo.updateInfo.version,
+        updateinfo.updateInfo.releaseNotes,
+      ];
   });
 
   autoUpdater.on('download-progress', (info) => {
@@ -153,7 +158,7 @@ const dataPath = app.getPath('userData');
  * Add event listeners...
  */
 
-listeners()
+listeners();
 
 ipcMain.on('update', (event, arg) => {
   if (arg === 'download') {
@@ -187,9 +192,9 @@ ipcMain.handle('open-dialog', async (event, options) => {
   return await dialog.showOpenDialog(options);
 });
 
-ipcMain.handle("save-dialog",async (event, options) => {
-  return await dialog.showSaveDialog(options)
-})
+ipcMain.handle('save-dialog', async (event, options) => {
+  return await dialog.showSaveDialog(options);
+});
 
 ipcMain.on('close', (event, arg) => {
   if (arg === 'closeApp') app.quit();

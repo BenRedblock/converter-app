@@ -1,6 +1,6 @@
+import FindInPageIcon from '@mui/icons-material/FindInPage';
 import { IconButton } from '@mui/material';
 import { useEffect, useState } from 'react';
-import FindInPageIcon from '@mui/icons-material/FindInPage';
 import { InputField } from 'renderer/utils/styled-components';
 import { AudioFormats, VideoFormats } from 'renderer/utils/types';
 
@@ -11,6 +11,12 @@ interface Props {
 
 export default function FileSelect({ onFileSelect, type }: Props) {
   const [filePath, setFilePath] = useState<string>();
+  let extensions: string[] = [];
+  if (type === 'video') {
+    extensions = VideoFormats;
+  } else if (type === 'audio') {
+    extensions = AudioFormats;
+  }
 
   const handleFileSelect = () => {
     window.electron
@@ -20,19 +26,18 @@ export default function FileSelect({ onFileSelect, type }: Props) {
         filters: [
           {
             name: 'Videos',
-            extensions: type === "video" ? VideoFormats : type === "audio" ? AudioFormats : [],
+            extensions,
           },
         ],
       })
       .then((result) => {
-        if (result.canceled) return;
-        setFilePath(result.filePaths[0]);
+        if (!result.canceled) setFilePath(result.filePaths[0]);
       });
   };
 
   useEffect(() => {
     onFileSelect(filePath);
-  }, [filePath]);
+  }, [filePath, onFileSelect]);
 
   return (
     <div className="flex">

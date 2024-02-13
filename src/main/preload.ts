@@ -1,6 +1,14 @@
 // Disable no-unused-vars, broken for spread args
 /* eslint no-unused-vars: off */
-import { contextBridge, ipcRenderer, IpcRendererEvent, shell } from 'electron';
+import {
+  contextBridge,
+  ipcRenderer,
+  IpcRendererEvent,
+  OpenDialogOptions,
+  OpenDialogReturnValue,
+  SaveDialogOptions,
+  SaveDialogReturnValue,
+} from 'electron';
 import { ConfigData } from 'renderer/utils/types';
 
 export type Channels =
@@ -12,11 +20,11 @@ export type Channels =
   | 'extractFrames'
   | 'video-convert'
   | 'audio-convert'
-  | 'history'
+  | 'history';
 
 const saveData = (data: ConfigData): Promise<boolean> => {
-  console.log('saving Data' + data);
-  return ipcRenderer.invoke('saveData', data)
+  console.log(`saving Data${data}`);
+  return ipcRenderer.invoke('saveData', data);
 };
 
 const syncData = () => {
@@ -41,29 +49,25 @@ const electronHandler = {
       ipcRenderer.once(channel, (_event, ...args) => func(...args));
     },
     invoke(channel: Channels, ...args: unknown[]): Promise<any> {
-      return ipcRenderer.invoke(channel, ...args)
-    }
+      return ipcRenderer.invoke(channel, ...args);
+    },
   },
   saveData,
   syncData,
-  openDialog: (
-    options: Electron.OpenDialogOptions
-  ): Promise<Electron.OpenDialogReturnValue> => {
+  openDialog: (options: OpenDialogOptions): Promise<OpenDialogReturnValue> => {
     return ipcRenderer.invoke('open-dialog', options);
   },
-  saveDialog: (
-    options: Electron.SaveDialogOptions
-  ): Promise<Electron.SaveDialogReturnValue> => {
+  saveDialog: (options: SaveDialogOptions): Promise<SaveDialogReturnValue> => {
     return ipcRenderer.invoke('save-dialog', options);
   },
   shell: {
     openPath: (path: string) => {
-      return ipcRenderer.send("shell", "openPath", path)
+      return ipcRenderer.send('shell', 'openPath', path);
     },
     showItemInFolder: (path: string) => {
-      return ipcRenderer.send("shell", "showItemInFolder", path)
+      return ipcRenderer.send('shell', 'showItemInFolder', path);
     },
-  }
+  },
 };
 
 contextBridge.exposeInMainWorld('electron', electronHandler);

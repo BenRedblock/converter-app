@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Container } from 'renderer/utils/styled-components';
 
 type UpdateType = {
@@ -22,9 +22,10 @@ export default function HomePage() {
             downloaded: false,
             progress: undefined,
             patchnotes: result[1],
-          })
-      }).catch((e) => console.log(e))
-  },[]);
+          });
+      })
+      .catch((e) => console.log(e));
+  }, []);
 
   window.electron.ipcRenderer.on('update', (arg, version, percent) => {
     if (arg === 'ready' && typeof version === 'string')
@@ -47,46 +48,35 @@ export default function HomePage() {
       });
   });
 
-
-
   return (
     <Container>
       {update?.availible ? (
-          <div className="update">
-            {update?.progress ? (
-              <text>Downloading update: {Math.round(update.progress)}%</text>
-            ) : (
-              // <>
-              //   {update.patchnotes ? (
-              //     <>
-              //       <text>New Version: v{update?.version}</text><br />
-              //       {update.patchnotes}
-              //     </>
-              //   ) : (
-                  <text>New Version: v{update?.version}</text>
-              //   )}
-              // </>
-            )}
-            {update?.downloaded ? (
-              <>
-                <button
-                  onClick={() =>
-                    window.electron.ipcRenderer.sendMessage('update', 'ready')
-                  }
-                >
-                  Update and Restart
-                </button>
-              </>
-            ) : (
-              <button
-                onClick={() =>
-                  window.electron.ipcRenderer.sendMessage('update', 'download')
-                }
-              >
-                Download update
-              </button>
-            )}
-          </div>
+        <div className="update">
+          {update?.progress ? (
+            <text>Downloading update: {Math.round(update.progress)}%</text>
+          ) : (
+            <text>New Version: v{update?.version}</text>
+          )}
+          {update?.downloaded ? (
+            <button
+              type="button"
+              onClick={() =>
+                window.electron.ipcRenderer.sendMessage('update', 'ready')
+              }
+            >
+              Update and Restart
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() =>
+                window.electron.ipcRenderer.sendMessage('update', 'download')
+              }
+            >
+              Download update
+            </button>
+          )}
+        </div>
       ) : null}
     </Container>
   );

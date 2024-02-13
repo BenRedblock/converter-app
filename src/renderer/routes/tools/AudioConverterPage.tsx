@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 import Moment from 'react-moment';
 import DestinationSelect from 'renderer/components/DestinationSelect';
 import Dropdown from 'renderer/components/Dropdown';
@@ -11,7 +11,11 @@ import {
   HistoryBox,
   PrimaryButton,
 } from 'renderer/utils/styled-components';
-import { AudioConvertOptions, AudioFormats, ProgressType } from 'renderer/utils/types';
+import {
+  AudioConvertOptions,
+  AudioFormats,
+  ProgressType,
+} from 'renderer/utils/types';
 import { getNameFromPath } from 'util-functions';
 
 export default function AudioConverterPage() {
@@ -21,7 +25,6 @@ export default function AudioConverterPage() {
   const [format, setFormat] = useState<string>('0');
   const [destinationPath, setDestinationPath] = useState<string | undefined>();
   const { updateSnackbar } = useContext(SnackbarContext);
-
 
   window.electron.ipcRenderer.on('audio-convert', (arg: any) => {
     if (arg.remaining && arg.percent && progress !== undefined) {
@@ -44,14 +47,20 @@ export default function AudioConverterPage() {
   });
 
   const clickConvert = () => {
-    if (!destinationPath || !format || !audiopath) return updateSnackbar({open: true, message: "You have to provide fields", type: "warning"});
+    if (!destinationPath || !format || !audiopath)
+      return updateSnackbar({
+        open: true,
+        message: 'You have to provide fields',
+        type: 'warning',
+      });
     setProgress({ percent: 1, remaining: 'Calculating Progress' });
     const options: AudioConvertOptions = {
       destinationPath,
-      format: AudioFormats[parseInt(format)],
+      format: AudioFormats[parseInt(format, 10)],
       inputPath: audiopath,
     };
     window.electron.ipcRenderer.sendMessage('audio-convert', options);
+    return true;
   };
 
   return (
@@ -75,7 +84,7 @@ export default function AudioConverterPage() {
         key={3}
         onSelect={(value) => setDestinationPath(value)}
         fileName={audiopath?.split('.').shift()}
-        format={AudioFormats[parseInt(format)]}
+        format={AudioFormats[parseInt(format, 10)]}
       />
       {format && audiopath && destinationPath && !progress ? (
         <div className="center">
@@ -94,23 +103,25 @@ export default function AudioConverterPage() {
         return (
           <HistoryBox>
             Converted{' '}
-            <a
+            <button
+              type="button"
               onClick={() =>
                 window.electron.shell.showItemInFolder(item.inputAudio)
               }
             >
               {getNameFromPath(item.inputAudio).name}
-            </a>{' '}
+            </button>{' '}
             to{' '}
-            <a
+            <button
+              type="button"
               onClick={() =>
                 window.electron.shell.showItemInFolder(item.outputAudio)
               }
             >
               {getNameFromPath(item.outputAudio).name}
-            </a>
-            <div className='end'>
-              <Moment format='HH:mm:ss' date={item.timestamp} />
+            </button>
+            <div className="end">
+              <Moment format="HH:mm:ss" date={item.timestamp} />
             </div>
           </HistoryBox>
         );

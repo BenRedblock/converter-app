@@ -5,7 +5,6 @@ export const NavigationItem = styled.div`
   border: 1px solid black;
 `;
 
-
 export const BigButton = styled.button`
   color: #3c39cc;
   font-size: 1.5em;
@@ -40,7 +39,7 @@ export const ButtomGrid = styled.div`
 `;
 
 export const Page = styled.div`
-  padding: 50px
+  padding: 50px;
 `;
 
 export const Container = styled.div`
@@ -134,7 +133,7 @@ export const InputField = styled.input`
 `;
 
 export const Select = styled.select`
-outline: none;
+  outline: none;
   margin: 5px;
   width: 100%;
   padding: 10px;
@@ -155,9 +154,9 @@ outline: none;
 `;
 
 export const HistoryBox = styled.div`
-min-width: 100%;
-border-radius: 5px;
-border: 1px solid #5c3cec;
-margin: 3px;
-padding: 5px;
-`
+  min-width: 100%;
+  border-radius: 5px;
+  border: 1px solid #5c3cec;
+  margin: 3px;
+  padding: 5px;
+`;

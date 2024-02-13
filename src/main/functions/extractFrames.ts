@@ -1,9 +1,11 @@
+// eslint-disable-next-line import/order
 import ffmpeg from 'fluent-ffmpeg';
-import { mainWindow } from '../main';
 import fs from 'fs';
 import path from 'path';
-import { calculateProgress } from './utils';
 import { extractFramesHistroyType } from 'renderer/utils/types';
+import { mainWindow } from '../main';
+import { calculateProgress } from './utils';
+
 const ffmpegPath = require('ffmpeg-static-electron').path.replace(
   'app.asar',
   'app.asar.unpacked'
@@ -31,12 +33,13 @@ export default async function extractFrames(inputVideo: string, fps?: string) {
   let seconds = 0;
 
   const intervalId = setInterval(() => {
-    seconds++;
+    seconds += 1;
   }, 1000);
 
-  const command = ffmpeg(inputVideo)
-  if(fps)command.outputOptions("-vf", `fps=${fps}`);
-    command.addOption('-qscale 1')
+  const command = ffmpeg(inputVideo);
+  if (fps) command.outputOptions('-vf', `fps=${fps}`);
+  command
+    .addOption('-qscale 1')
     .on('progress', async (progress) => {
       mainWindow?.webContents.send(
         'extractFrames',
@@ -56,11 +59,11 @@ export default async function extractFrames(inputVideo: string, fps?: string) {
         true,
         'Extraction succeeded',
       ]);
-        const history: extractFramesHistroyType = {
-          outputdir: framesDirectory,
-          timestamp: new Date(),
-        };
-        mainWindow?.webContents.send('history', 'extractFrames', history);
+      const history: extractFramesHistroyType = {
+        outputdir: framesDirectory,
+        timestamp: new Date(),
+      };
+      mainWindow?.webContents.send('history', 'extractFrames', history);
       clearInterval(intervalId);
     })
     .saveToFile(path.join(framesDirectory, 'frame-%d.jpg'));

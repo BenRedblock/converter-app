@@ -1,7 +1,7 @@
+import FindInPageIcon from '@mui/icons-material/FindInPage';
 import { IconButton } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { InputField } from 'renderer/utils/styled-components';
-import FindInPageIcon from '@mui/icons-material/FindInPage';
 
 interface Props {
   onSelect: (destination: string | undefined) => void;
@@ -21,7 +21,7 @@ export default function DestinationSelect({
       .saveDialog({
         properties: ['createDirectory'],
         title: 'Select a location to save',
-        defaultPath: `${fileName ? fileName : ''}-converted.${format}`,
+        defaultPath: `${fileName || ''}-converted.${format}`,
         filters: [{ name: 'Videos', extensions: [format] }],
       })
       .then((result) => {
@@ -30,16 +30,15 @@ export default function DestinationSelect({
       });
   };
 
-  useEffect(()=> {
-    onSelect(selected)
-  },[selected])
+  useEffect(() => {
+    onSelect(selected);
+  }, [onSelect, selected]);
 
   return (
     <div className="flex">
       <InputField
         value={selected}
-        onChange={(e) =>
-          setSelected(e.target.value)}
+        onChange={(e) => setSelected(e.target.value)}
         style={{ flex: 1 }}
       />
       <IconButton onClick={handleDestinationSelect}>

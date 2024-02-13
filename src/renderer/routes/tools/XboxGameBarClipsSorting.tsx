@@ -1,6 +1,4 @@
-import { Alert, Snackbar } from '@mui/material';
-import { dialog } from 'electron';
-import { useContext, useEffect, useState } from 'react';
+import { useContext } from 'react';
 import { ConfigDataContext } from 'renderer/utils/context/ConfigDataContext';
 import { SnackbarContext } from 'renderer/utils/context/SnackbarContext';
 import {
@@ -12,11 +10,7 @@ import { ipcMainresponse } from 'renderer/utils/types';
 
 export default function XboxGameBarClipsSorting() {
   const { configData, updateData } = useContext(ConfigDataContext);
-  const [response, setResponse] = useState<undefined | boolean | string>(
-    undefined
-  );
   const { updateSnackbar } = useContext(SnackbarContext);
-
 
   const handleClick = () => {
     window.electron
@@ -26,9 +20,10 @@ export default function XboxGameBarClipsSorting() {
       })
       .then(async (result) => {
         if (!result.canceled) {
-          await window.electron
-            .saveData({ xboxClipsPath: result.filePaths[0] })
-            .then((result) => updateData());
+          await window.electron.saveData({
+            xboxClipsPath: result.filePaths[0],
+          });
+          updateData();
         }
       });
   };

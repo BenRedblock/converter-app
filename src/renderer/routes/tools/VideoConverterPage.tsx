@@ -1,5 +1,12 @@
 import { Checkbox } from '@mui/material';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
+import Moment from 'react-moment';
+import DestinationSelect from 'renderer/components/DestinationSelect';
+import Dropdown from 'renderer/components/Dropdown';
+import FileSelect from 'renderer/components/FileSelect';
+import Progress from 'renderer/components/Progress';
+import { HistoryContext } from 'renderer/utils/context/HistoryContext';
+import { SnackbarContext } from 'renderer/utils/context/SnackbarContext';
 import {
   Container,
   HistoryBox,
@@ -7,14 +14,7 @@ import {
   PrimaryButton,
 } from 'renderer/utils/styled-components';
 import { AudioFormats, ProgressType, VideoFormats } from 'renderer/utils/types';
-import Dropdown from 'renderer/components/Dropdown';
-import DestinationSelect from 'renderer/components/DestinationSelect';
-import Progress from 'renderer/components/Progress';
-import { HistoryContext } from 'renderer/utils/context/HistoryContext';
 import { getNameFromPath } from 'util-functions';
-import { SnackbarContext } from 'renderer/utils/context/SnackbarContext';
-import FileSelect from 'renderer/components/FileSelect';
-import Moment from 'react-moment';
 
 export default function VideoConverterPage() {
   const [crf, setCRF] = useState(true);
@@ -42,12 +42,7 @@ export default function VideoConverterPage() {
   //   'flac',
   //   'ogg',
   // ];
-  const Formats = [
-    'VIDEO',
-    ...VideoFormats,
-    'AUDIO',
-    ...AudioFormats
-  ]
+  const Formats = ['VIDEO', ...VideoFormats, 'AUDIO', ...AudioFormats];
 
   window.electron.ipcRenderer.on('video-convert', (arg: any) => {
     if (arg.remaining && arg.percent && progress !== undefined) {
@@ -73,7 +68,7 @@ export default function VideoConverterPage() {
     setProgress({ percent: 1, remaining: 'Calculating Progress' });
     window.electron.ipcRenderer.sendMessage('video-convert', {
       inputPath,
-      format: Formats[parseInt(format)],
+      format: Formats[parseInt(format, 10)],
       destinationPath,
       videobitrate: crf ? undefined : bitrate,
     });
@@ -103,9 +98,7 @@ export default function VideoConverterPage() {
           Automatic
         </div>
       </div>
-      {crf ? (
-        <></>
-      ) : (
+      {crf ? null : (
         <div className="flex">
           <InputField
             value={bitrate}
@@ -120,7 +113,7 @@ export default function VideoConverterPage() {
         key={3}
         onSelect={(e) => setDestinationPath(e)}
         fileName={inputPath?.split('.').shift()}
-        format={Formats[parseInt(format)]}
+        format={Formats[parseInt(format, 10)]}
       />
       {format &&
       inputPath &&
@@ -130,9 +123,7 @@ export default function VideoConverterPage() {
         <div style={{ display: 'grid', placeItems: 'center' }}>
           <PrimaryButton onClick={clickConvert}>Convert</PrimaryButton>
         </div>
-      ) : (
-        <></>
-      )}
+      ) : null}
       {progress ? (
         <Progress
           key={4}
@@ -145,23 +136,25 @@ export default function VideoConverterPage() {
         return (
           <HistoryBox>
             Converted{' '}
-            <a
+            <button
+              type="button"
               onClick={() =>
                 window.electron.shell.showItemInFolder(item.inputVideo)
               }
             >
               {getNameFromPath(item.inputVideo).name}
-            </a>{' '}
+            </button>{' '}
             to{' '}
-            <a
+            <button
+              type="button"
               onClick={() =>
                 window.electron.shell.showItemInFolder(item.outputVideo)
               }
             >
               {getNameFromPath(item.outputVideo).name}
-            </a>
-            <div className='end'>
-              <Moment format='HH:mm:ss' date={item.timestamp} />
+            </button>
+            <div className="end">
+              <Moment format="HH:mm:ss" date={item.timestamp} />
             </div>
           </HistoryBox>
         );

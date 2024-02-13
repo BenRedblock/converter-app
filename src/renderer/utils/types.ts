@@ -25,7 +25,7 @@ export type AudioConvertOptions = {
   inputPath: string;
   format: string;
   audiobitrate?: string;
-}
+};
 
 export type ProgressType = {
   percent: number;
@@ -70,6 +70,6 @@ export type extractFramesInputType = {
   fps?: string;
 };
 
-export const AudioFormats = ['mp3', 'ac3', 'eac3', 'wav', 'flac', 'ogg']
+export const AudioFormats = ['mp3', 'ac3', 'eac3', 'wav', 'flac', 'ogg'];
 
 export const VideoFormats = ['mp4', 'mov', 'avi', 'mkv', 'webm', 'flv'];

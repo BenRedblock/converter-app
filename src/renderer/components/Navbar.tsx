@@ -1,72 +1,84 @@
+import CloseIcon from '@mui/icons-material/Close';
+import Crop32Icon from '@mui/icons-material/Crop32';
+import HorizontalRuleIcon from '@mui/icons-material/HorizontalRule';
+import MenuIcon from '@mui/icons-material/Menu';
 import {
   Divider,
+  Drawer,
+  IconButton,
   List,
   ListItem,
   ListItemButton,
   ListItemText,
-  IconButton,
-  Drawer,
 } from '@mui/material';
 import { useState } from 'react';
-import CloseIcon from '@mui/icons-material/Close';
-import HorizontalRuleIcon from '@mui/icons-material/HorizontalRule';
-import Crop32Icon from '@mui/icons-material/Crop32';
-import MenuIcon from '@mui/icons-material/Menu';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './components-styles.css';
-import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function Navbar() {
-  const location = useLocation()
+  const location = useLocation();
   const [drawer, setDrawer] = useState<boolean>(false);
   const navigate = useNavigate();
 
   const drawerWidth = 240;
 
-  const urls = ['/tools/vid2img', "/tools/xbox-sorting", "/tools/video-converter", "/tools/audio-converter"];
+  const sites = [
+    {
+      name: 'Video To Image Converter',
+      url: '/tools/vid2img',
+    },
+    {
+      name: 'Xbox Clip sorting',
+      url: '/tools/xbox-sorting',
+    },
+    {
+      name: 'Video Converter',
+      url: '/tools/video-converter',
+    },
+    {
+      name: 'Audio Converter',
+      url: '/tools/audio-converter',
+    },
+  ];
 
   const drawerHTML = (
     <div>
       <List>
         <ListItem
-          key={'Home'}
+          key="Home"
           disablePadding
           onClick={() => {
             navigate('/');
             setDrawer(false);
           }}
         >
-          {'/' === location.pathname ? (
+          {location.pathname === '/' ? (
             <ListItemButton selected>
-              <ListItemText primary={'Home'} />
+              <ListItemText primary="Home" />
             </ListItemButton>
           ) : (
             <ListItemButton>
-              <ListItemText primary={'Home'} />
+              <ListItemText primary="Home" />
             </ListItemButton>
           )}
         </ListItem>
         <Divider />
-        {[
-          'Video To Image Converter',
-          'Xbox Clip sorting',
-          'Video Converter',
-          'Audio Converter'
-        ].map((text, index) => (
+        {sites.map((site) => (
           <ListItem
-            key={text}
+            key={site.name}
             disablePadding
             onClick={() => {
-              navigate(urls[index]);
+              navigate(site.url);
               setDrawer(false);
             }}
           >
-            {urls[index] === location.pathname ? (
+            {site.url === location.pathname ? (
               <ListItemButton selected>
-                <ListItemText primary={text} />
+                <ListItemText primary={site.name} />
               </ListItemButton>
             ) : (
               <ListItemButton>
-                <ListItemText primary={text} />
+                <ListItemText primary={site.name} />
               </ListItemButton>
             )}
           </ListItem>
@@ -92,12 +104,9 @@ export default function Navbar() {
           <IconButton onClick={() => setDrawer(true)}>
             <MenuIcon />
           </IconButton>
-          <div
-            style={{ fontSize: '25px', cursor: 'pointer' }}
-            onClick={() => navigate('/')}
-          >
-            Converter
-          </div>
+          <Link style={{ textDecoration: 'none', color: 'white' }} to="/">
+            <div style={{ fontSize: '25px', cursor: 'pointer' }}>Converter</div>
+          </Link>
         </div>
         <div className="TitleBar">``</div>
         <div className="Actions">
