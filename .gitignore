@@ -18,6 +18,9 @@ node_modules
 # OSX
 .DS_Store
 
+bun.lockb
+package-lock.json
+
 release/app/dist
 release/build
 .erb/dll
